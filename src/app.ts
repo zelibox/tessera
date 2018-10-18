@@ -1,10 +1,11 @@
 interface IPuzzle {
     render(x, y)
+    setCtx(ctx: CanvasRenderingContext2D)
 }
 
 abstract class Puzzle implements IPuzzle {
-    protected width = 20;
-    protected height = 20;
+    protected width = 18;
+    protected height = 18;
     public color = "#fbcf9d";
 
     public x = null;
@@ -13,12 +14,13 @@ abstract class Puzzle implements IPuzzle {
     public futureY = null;
     public stepX = null;
     public stepY = null;
-    public countStep = 10;
+    public countStep = 15;
     public currentStep = 0;
+    private ctx: CanvasRenderingContext2D;
 
-    constructor(protected ctx: CanvasRenderingContext2D) {
+    setCtx(ctx: CanvasRenderingContext2D) {
+        this.ctx = ctx;
     }
-
 
     render(x, y) {
         if ((this.x === null) || (this.y === null)) {
@@ -53,8 +55,8 @@ abstract class Puzzle implements IPuzzle {
                 this.y = this.futureY;
             }
         }
-            // this.x = this.futureX;
-            // this.y = this.futureY;
+        // this.x = this.futureX;
+        // this.y = this.futureY;
         this.currentStep++;
         let r = 2;
         if (this.width < 2 * r) r = this.width / 2;
@@ -66,8 +68,8 @@ abstract class Puzzle implements IPuzzle {
         this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, r);
         this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, r);
         this.ctx.fillStyle = this.color;
-        this.ctx.shadowColor = '#fbcf9d';
-        this.ctx.shadowBlur = 2;
+        // this.ctx.shadowColor = '#fbcf9d';
+        // this.ctx.shadowBlur = 2;
         this.ctx.fill();
         this.ctx.closePath();
         return this.ctx;
@@ -78,20 +80,24 @@ class SimplePuzzle extends Puzzle {
 
 }
 
+class BorderPuzzle extends Puzzle{
+    color = '#111b44'
+}
 
 interface IFigure {
 
 }
 
-abstract class Figure {
+abstract class Figure implements IFigure {
     private puzzles: IPuzzle[];
     private shape: Array<number | IPuzzle>[] = null;
     private x = 0;
     private y = 0;
 
+    constructor(protected ctx:CanvasRenderingContext2D) {
+    }
 
     abstract initShape(): number[][];
-
 
     getShape(): Array<number | IPuzzle>[] {
         if (this.shape === null) {
@@ -127,6 +133,7 @@ abstract class Figure {
             for (let place of row) {
                 if (place !== 0) {
                     rowShape.push(puzzles[index]);
+                    puzzles[index].setCtx(this.ctx);
                     index++;
                 } else {
                     rowShape.push(0);
@@ -148,9 +155,9 @@ abstract class Figure {
                 if (typeof place !== "number") {
                     place.render(x, y);
                 }
-                x += 22;
+                x += 20;
             }
-            y += 22;
+            y += 20;
         }
     }
 
@@ -171,21 +178,45 @@ abstract class Figure {
         }
         this.updateShape(shape);
     }
+
     move(side: 'left' | 'right' | 'down') {
+        let moveX = this.x;
+        let moveY = this.y;
         if (side === 'right') {
-            this.x += 20;
+            moveX = this.x + 20;
         }
         if (side === 'left') {
-            this.x -= 20;
+            moveX = this.x - 20;
         }
         if (side === 'down') {
-            this.x -= 20;
+            moveY = this.y + 20;
+        }
+        if (this.isCanMove(moveX, moveY)) {
+            this.x = moveX;
+            this.y = moveY;
+        }
+    }
+
+    isCanMove(x, y) {
+        if (x >= 0 && x <= 160) {
+            return true;
+        } else {
+            return false;
         }
     }
 
 }
 
 class TriangleFigure extends Figure {
+    tickCount = 0;
+    render(): void {
+        this.tickCount++;
+        if ((this.tickCount % 30) === 0) {
+            this.move("down")
+        }
+        super.render();
+    }
+
     initShape(): number[][] {
         return [
             // [0, 1, 0],
@@ -202,22 +233,53 @@ class TriangleFigure extends Figure {
     }
 }
 
+class BorderFigure extends Figure {
+    initShape(): number[][] {
+        let rows = 22;
+        let cols = 12;
+        let shape = [];
+        for (let r = 0; r < rows; r++) {
+            let row = [];
+            for (let c = 0; c < cols; c++) {
+                let v = 0;
+                if (r === 0 || r === (rows - 1) || c === 0 || c === (cols - 1)) {
+                    v = 1
+                }
+                row.push(v)
+            }
+            shape.push(row)
+        }
+        return shape;
+    }
+}
+
+function generatePuzzles(count, type){
+    let arr = [];
+    for (let i = 0; i < count; i++) {
+        arr.push(new type())
+        console.log(count)
+    }
+
+    return arr;
+}
 
 $(() => {
     let canvasElement = <HTMLCanvasElement>document.getElementById('wrap');
 
     let ctx = canvasElement.getContext('2d');
 
-    let f = new TriangleFigure();
+    let f = new TriangleFigure(ctx);
+    f.insertPuzzles(generatePuzzles(f.getCountPuzzlePlaces(), SimplePuzzle));
+    f.move('right');
+    f.move('right');
+    f.move('right');
+    f.move('right');
+    f.move('down');
 
-    let r = new SimplePuzzle(ctx);
-    r.color = '#ff0000';
-    f.insertPuzzles([
-        r,
-        new SimplePuzzle(ctx),
-        new SimplePuzzle(ctx),
-        new SimplePuzzle(ctx),
-    ]);
+
+    let w = new BorderFigure(ctx);
+    w.insertPuzzles(generatePuzzles(w.getCountPuzzlePlaces(), BorderPuzzle));
+
 
     $("body").on('keydown', function (e) {
         if (e.keyCode == 37) { // left
@@ -226,22 +288,20 @@ $(() => {
         else if (e.keyCode == 39) { // right
             f.move('right')
         }
-        else if (e.keyCode == 32) { // space
-            f.move('down')
-        }
         else if (e.keyCode == 38) { // up
-            f.rotate('left')
+            f.rotate('right')
         }
         else if (e.keyCode == 40) { // down
-            f.rotate('right')
+            f.move('down')
         }
     });
 
     // f.flipMatrix();
 
     function draw() {
-        ctx.clearRect(0, 0, 300, 300);
+        ctx.clearRect(0, 0, 240, 440);
         f.render();
+        w.render();
         requestAnimationFrame(draw);
     }
 
