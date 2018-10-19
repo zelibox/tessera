@@ -23,7 +23,8 @@ var config = {
         typescript: {
             dependencies: [],
             assets: [
-                './src/*.ts'
+                './src/*.ts',
+                './src/*/*.ts'
             ]
         },
         css: {
