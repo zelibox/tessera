@@ -1,7 +1,4 @@
-import * as ololo from './figure'
-
-namespace Tessera {
-    function generatePuzzles(count, type) {
+function generatePuzzles(count, type) {
         let arr = [];
         for (let i = 0; i < count; i++) {
             arr.push(new type());
@@ -12,12 +9,12 @@ namespace Tessera {
 
 
     $(() => {
-        console.log(Tessera.Figure.BorderFigure);
+        console.log(BorderFigure);
         let canvasElement = <HTMLCanvasElement>document.getElementById('wrap');
 
         let ctx = canvasElement.getContext('2d');
 
-        let f = new Tessera.Figure.InteractiveFigureS(ctx);
+        let f = new InteractiveFigureS(ctx);
         f.insertPuzzles(generatePuzzles(f.getCountPuzzlePlaces(), SimplePuzzle));
         f.move('right');
         f.move('right');
@@ -26,7 +23,7 @@ namespace Tessera {
         f.move('down');
 
 
-        let w = new Tessera.Figure.BorderFigure(ctx);
+        let w = new BorderFigure(ctx);
         w.insertPuzzles(generatePuzzles(w.getCountPuzzlePlaces(), BorderPuzzle));
 
 
@@ -56,4 +53,3 @@ namespace Tessera {
 
         draw();
     });
-}

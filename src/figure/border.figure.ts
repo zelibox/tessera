@@ -1,6 +1,4 @@
-///<reference path="figure.ts"/>
-namespace Tessera.Figure {
-    export class BorderFigure extends Figure.Figure {
+class BorderFigure extends Figure {
         initShape(): number[][] {
             let rows = 22;
             let cols = 12;
@@ -19,4 +17,3 @@ namespace Tessera.Figure {
             return shape;
         }
     }
-}
