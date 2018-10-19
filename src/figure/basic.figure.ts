@@ -1,10 +1,23 @@
 abstract class Figure implements IFigure {
     private puzzles: IPuzzle[];
     private shape: Array<number | IPuzzle>[] = null;
-    private x = 0;
-    private y = 0;
+    private cell = 0;
+    private row = 0;
+    public stop: boolean;
 
     constructor(protected ctx: CanvasRenderingContext2D) {
+    }
+
+    getCell(): number {
+        return this.cell;
+    }
+
+    getRow(): number {
+        return this.row;
+    }
+
+    getPuzzles() {
+        return this.puzzles;
     }
 
     abstract initShape(): number[][];
@@ -45,6 +58,7 @@ abstract class Figure implements IFigure {
                 if (place !== 0) {
                     rowShape.push(puzzles[index]);
                     puzzles[index].setCtx(this.ctx);
+                    puzzles[index].setFigure(this);
                     index++;
                 } else {
                     rowShape.push(0);
@@ -58,10 +72,13 @@ abstract class Figure implements IFigure {
     }
 
     render() {
+        if (this.stop) {
+            return;
+        }
         let x;
-        let y = this.y;
+        let y = this.row;
         for (let row of this.getShape()) {
-            x = this.x;
+            x = this.cell;
             for (let place of row) {
                 if (typeof place !== "number") {
                     place.render(x, y);
@@ -91,20 +108,20 @@ abstract class Figure implements IFigure {
     }
 
     move(side: 'left' | 'right' | 'down') {
-        let moveX = this.x;
-        let moveY = this.y;
+        let moveX = this.cell;
+        let moveY = this.row;
         if (side === 'right') {
-            moveX = this.x + 1;
+            moveX = this.cell + 1;
         }
         if (side === 'left') {
-            moveX = this.x - 1;
+            moveX = this.cell - 1;
         }
         if (side === 'down') {
-            moveY = this.y + 1;
+            moveY = this.row + 1;
         }
         if (this.isCanMove(moveX, moveY)) {
-            this.x = moveX;
-            this.y = moveY;
+            this.cell = moveX;
+            this.row = moveY;
         }
     }
 
@@ -119,5 +136,9 @@ abstract class Figure implements IFigure {
 }
 
 interface IFigure {
+    getCell(): number;
 
+    getRow(): number;
+
+    getPuzzles(): IPuzzle[];
 }

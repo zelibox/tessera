@@ -1,7 +1,9 @@
 interface IPuzzle {
-    render(x, y)
-
+    render(cell, row)
     setCtx(ctx: CanvasRenderingContext2D)
+    getCell(): number;
+    getRow(): number;
+    setFigure(figure:IFigure)
 }
 
 abstract class Puzzle implements IPuzzle {
@@ -18,13 +20,31 @@ abstract class Puzzle implements IPuzzle {
     public countStep = 10;
     public currentStep = 0;
     private ctx: CanvasRenderingContext2D;
+    private cell: number;
+    private row: number;
+    private figure: IFigure;
+
+    getCell() {
+        return this.cell;
+    }
+    getRow() {
+        return this.row;
+    }
 
     setCtx(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
     }
 
-    render(col, row) {
-        let x = col * config.puzzleSize;
+    render(cell, row) {
+        let barrierPuzzle = config.scene.getPuzzle(cell, row);
+        if (barrierPuzzle && (barrierPuzzle !== this) && (this.color == '#f00')) {
+            // console.log(barrierPuzzle);
+            this.figure.stop = true;
+        }
+        // console.log(config.scene.getPuzzle(cell, row));
+        this.cell = cell;
+        this.row = row;
+        let x = cell * config.puzzleSize;
         let y = row * config.puzzleSize;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
@@ -74,6 +94,10 @@ abstract class Puzzle implements IPuzzle {
         this.ctx.fill();
         this.ctx.closePath();
         return this.ctx;
+    }
+
+    setFigure(figure:IFigure) {
+        this.figure = figure;
     }
 }
 

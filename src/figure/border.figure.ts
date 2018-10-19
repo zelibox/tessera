@@ -1,7 +1,7 @@
 class BorderFigure extends Figure {
         initShape(): number[][] {
-            let rows = 22;
-            let cols = 12;
+            let rows = config.rows;
+            let cols = config.cols;
             let shape = [];
             for (let r = 0; r < rows; r++) {
                 let row = [];

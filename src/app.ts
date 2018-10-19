@@ -9,13 +9,14 @@ function generatePuzzles(count, type) {
 
 
     $(() => {
-        console.log(BorderFigure);
         let canvasElement = <HTMLCanvasElement>document.getElementById('wrap');
 
         let ctx = canvasElement.getContext('2d');
 
-        let f = new InteractiveFigureI(ctx);
-        f.insertPuzzles(generatePuzzles(f.getCountPuzzlePlaces(), SimplePuzzle));
+        let f = new InteractiveFigureZ(ctx);
+        let ps = generatePuzzles(f.getCountPuzzlePlaces(), SimplePuzzle);
+        ps[0].color = "#f00";
+        f.insertPuzzles(ps);
         f.move('right');
         f.move('right');
         f.move('right');
@@ -26,6 +27,8 @@ function generatePuzzles(count, type) {
         let w = new BorderFigure(ctx);
         w.insertPuzzles(generatePuzzles(w.getCountPuzzlePlaces(), BorderPuzzle));
 
+        config.scene.addFigure(f);
+        config.scene.addFigure(w);
 
         $("body").on('keydown', function (e) {
             if (e.keyCode == 37) { // left
