@@ -14,7 +14,7 @@ function generatePuzzles(count, type) {
 
         let ctx = canvasElement.getContext('2d');
 
-        let f = new InteractiveFigureS(ctx);
+        let f = new InteractiveFigureI(ctx);
         f.insertPuzzles(generatePuzzles(f.getCountPuzzlePlaces(), SimplePuzzle));
         f.move('right');
         f.move('right');

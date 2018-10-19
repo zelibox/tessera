@@ -19,7 +19,7 @@ $(function () {
     console.log(BorderFigure);
     var canvasElement = document.getElementById('wrap');
     var ctx = canvasElement.getContext('2d');
-    var f = new InteractiveFigureS(ctx);
+    var f = new InteractiveFigureI(ctx);
     f.insertPuzzles(generatePuzzles(f.getCountPuzzlePlaces(), SimplePuzzle));
     f.move('right');
     f.move('right');
@@ -56,93 +56,6 @@ var config = {
     rows: 22,
     cols: 12,
 };
-var Puzzle = /** @class */ (function () {
-    function Puzzle() {
-        this.width = 18;
-        this.height = 18;
-        this.color = "#fbcf9d";
-        this.x = null;
-        this.y = null;
-        this.futureX = null;
-        this.futureY = null;
-        this.stepX = null;
-        this.stepY = null;
-        this.countStep = 10;
-        this.currentStep = 0;
-    }
-    Puzzle.prototype.setCtx = function (ctx) {
-        this.ctx = ctx;
-    };
-    Puzzle.prototype.render = function (x, y) {
-        if ((this.x === null) || (this.y === null)) {
-            this.x = x;
-            this.y = y;
-            this.futureX = x;
-            this.futureY = y;
-            this.currentStep = 0;
-        }
-        else {
-            if ((x !== this.futureX) || (y !== this.futureY)) {
-                this.futureX = x;
-                this.futureY = y;
-                this.currentStep = 0;
-                if (this.x > this.futureX) {
-                    this.stepX = ((this.x - this.futureX) / this.countStep) * -1;
-                }
-                else {
-                    this.stepX = ((this.futureX - this.x) / this.countStep);
-                }
-                if (this.y > this.futureY) {
-                    this.stepY = ((this.y - this.futureY) / this.countStep) * -1;
-                }
-                else {
-                    this.stepY = ((this.futureY - this.y) / this.countStep);
-                }
-            }
-            this.x += this.stepX;
-            this.y += this.stepY;
-            if (this.currentStep >= this.countStep) {
-                this.x = this.futureX;
-                this.y = this.futureY;
-            }
-        }
-        this.currentStep++;
-        var r = 2;
-        if (this.width < 2 * r)
-            r = this.width / 2;
-        if (this.height < 2 * r)
-            r = this.height / 2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x + r, this.y);
-        this.ctx.arcTo(this.x + this.width, this.y, this.x + this.width, this.y + this.height, r);
-        this.ctx.arcTo(this.x + this.width, this.y + this.height, this.x, this.y + this.height, r);
-        this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, r);
-        this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, r);
-        this.ctx.fillStyle = this.color;
-        // this.ctx.shadowColor = '#fbcf9d';
-        // this.ctx.shadowBlur = 2;
-        this.ctx.fill();
-        this.ctx.closePath();
-        return this.ctx;
-    };
-    return Puzzle;
-}());
-var SimplePuzzle = /** @class */ (function (_super) {
-    __extends(SimplePuzzle, _super);
-    function SimplePuzzle() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return SimplePuzzle;
-}(Puzzle));
-var BorderPuzzle = /** @class */ (function (_super) {
-    __extends(BorderPuzzle, _super);
-    function BorderPuzzle() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = '#111b44';
-        return _this;
-    }
-    return BorderPuzzle;
-}(Puzzle));
 var Figure = /** @class */ (function () {
     function Figure(ctx) {
         this.ctx = ctx;
@@ -205,9 +118,9 @@ var Figure = /** @class */ (function () {
                 if (typeof place !== "number") {
                     place.render(x, y);
                 }
-                x += 20;
+                x += 1;
             }
-            y += 20;
+            y += 1;
         }
     };
     Figure.prototype.rotate = function (side) {
@@ -231,13 +144,13 @@ var Figure = /** @class */ (function () {
         var moveX = this.x;
         var moveY = this.y;
         if (side === 'right') {
-            moveX = this.x + 20;
+            moveX = this.x + 1;
         }
         if (side === 'left') {
-            moveX = this.x - 20;
+            moveX = this.x - 1;
         }
         if (side === 'down') {
-            moveY = this.y + 20;
+            moveY = this.y + 1;
         }
         if (this.isCanMove(moveX, moveY)) {
             this.x = moveX;
@@ -281,7 +194,9 @@ var BorderFigure = /** @class */ (function (_super) {
 var InteractiveFigure = /** @class */ (function (_super) {
     __extends(InteractiveFigure, _super);
     function InteractiveFigure() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.tickCount = 0;
+        return _this;
     }
     InteractiveFigure.prototype.render = function () {
         this.tickCount++;
@@ -299,9 +214,10 @@ var InteractiveFigureI = /** @class */ (function (_super) {
     }
     InteractiveFigureI.prototype.initShape = function () {
         return [
-            [0, 1, 0],
-            [0, 1, 0],
-            [0, 1, 0]
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
         ];
     };
     return InteractiveFigureI;
@@ -389,5 +305,94 @@ var InteractiveFigureL = /** @class */ (function (_super) {
     };
     return InteractiveFigureL;
 }(InteractiveFigure));
+var Puzzle = /** @class */ (function () {
+    function Puzzle() {
+        this.width = config.puzzleSize - 1;
+        this.height = config.puzzleSize - 1;
+        this.color = "#fbcf9d";
+        this.x = null;
+        this.y = null;
+        this.futureX = null;
+        this.futureY = null;
+        this.stepX = null;
+        this.stepY = null;
+        this.countStep = 10;
+        this.currentStep = 0;
+    }
+    Puzzle.prototype.setCtx = function (ctx) {
+        this.ctx = ctx;
+    };
+    Puzzle.prototype.render = function (col, row) {
+        var x = col * config.puzzleSize;
+        var y = row * config.puzzleSize;
+        if ((this.x === null) || (this.y === null)) {
+            this.x = x;
+            this.y = y;
+            this.futureX = x;
+            this.futureY = y;
+            this.currentStep = 0;
+        }
+        else {
+            if ((x !== this.futureX) || (y !== this.futureY)) {
+                this.futureX = x;
+                this.futureY = y;
+                this.currentStep = 0;
+                if (this.x > this.futureX) {
+                    this.stepX = ((this.x - this.futureX) / this.countStep) * -1;
+                }
+                else {
+                    this.stepX = ((this.futureX - this.x) / this.countStep);
+                }
+                if (this.y > this.futureY) {
+                    this.stepY = ((this.y - this.futureY) / this.countStep) * -1;
+                }
+                else {
+                    this.stepY = ((this.futureY - this.y) / this.countStep);
+                }
+            }
+            this.x += this.stepX;
+            this.y += this.stepY;
+            if (this.currentStep >= this.countStep) {
+                this.x = this.futureX;
+                this.y = this.futureY;
+            }
+        }
+        this.currentStep++;
+        var r = 2;
+        if (this.width < 2 * r)
+            r = this.width / 2;
+        if (this.height < 2 * r)
+            r = this.height / 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x + r, this.y);
+        this.ctx.arcTo(this.x + this.width, this.y, this.x + this.width, this.y + this.height, r);
+        this.ctx.arcTo(this.x + this.width, this.y + this.height, this.x, this.y + this.height, r);
+        this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, r);
+        this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, r);
+        this.ctx.fillStyle = this.color;
+        // this.ctx.shadowColor = '#fbcf9d';
+        // this.ctx.shadowBlur = 2;
+        this.ctx.fill();
+        this.ctx.closePath();
+        return this.ctx;
+    };
+    return Puzzle;
+}());
+var SimplePuzzle = /** @class */ (function (_super) {
+    __extends(SimplePuzzle, _super);
+    function SimplePuzzle() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return SimplePuzzle;
+}(Puzzle));
+var BorderPuzzle = /** @class */ (function (_super) {
+    __extends(BorderPuzzle, _super);
+    function BorderPuzzle() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = '#111b44';
+        return _this;
+    }
+    return BorderPuzzle;
+}(Puzzle));
 
 //# sourceMappingURL=assets_typescript.js.map

@@ -66,9 +66,9 @@ abstract class Figure implements IFigure {
                 if (typeof place !== "number") {
                     place.render(x, y);
                 }
-                x += 20;
+                x += 1;
             }
-            y += 20;
+            y += 1;
         }
     }
 
@@ -94,13 +94,13 @@ abstract class Figure implements IFigure {
         let moveX = this.x;
         let moveY = this.y;
         if (side === 'right') {
-            moveX = this.x + 20;
+            moveX = this.x + 1;
         }
         if (side === 'left') {
-            moveX = this.x - 20;
+            moveX = this.x - 1;
         }
         if (side === 'down') {
-            moveY = this.y + 20;
+            moveY = this.y + 1;
         }
         if (this.isCanMove(moveX, moveY)) {
             this.x = moveX;

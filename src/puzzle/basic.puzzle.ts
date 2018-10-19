@@ -5,8 +5,8 @@ interface IPuzzle {
 }
 
 abstract class Puzzle implements IPuzzle {
-    protected width = 18;
-    protected height = 18;
+    protected width = config.puzzleSize - 1;
+    protected height = config.puzzleSize - 1;
     public color = "#fbcf9d";
 
     public x = null;
@@ -23,7 +23,9 @@ abstract class Puzzle implements IPuzzle {
         this.ctx = ctx;
     }
 
-    render(x, y) {
+    render(col, row) {
+        let x = col * config.puzzleSize;
+        let y = row * config.puzzleSize;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
             this.y = y;

@@ -1,5 +1,5 @@
 abstract class InteractiveFigure extends Figure {
-    private tickCount: number;
+    private tickCount: number = 0;
 
     render(): void {
         this.tickCount++;
@@ -13,9 +13,10 @@ abstract class InteractiveFigure extends Figure {
 class InteractiveFigureI extends InteractiveFigure {
     initShape(): number[][] {
         return [
-            [0, 1, 0],
-            [0, 1, 0],
-            [0, 1, 0]
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
         ];
     }
 }
