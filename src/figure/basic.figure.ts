@@ -3,7 +3,6 @@ abstract class Figure implements IFigure {
     private shape: Array<number | IPuzzle>[] = null;
     private cell = 0;
     private row = 0;
-    public stop: boolean;
 
     constructor(protected ctx: CanvasRenderingContext2D) {
     }
@@ -26,7 +25,6 @@ abstract class Figure implements IFigure {
         if (this.shape === null) {
             this.shape = this.initShape();
         }
-
 
         return this.shape;
     }
@@ -72,9 +70,6 @@ abstract class Figure implements IFigure {
     }
 
     render() {
-        if (this.stop) {
-            return;
-        }
         let x;
         let y = this.row;
         for (let row of this.getShape()) {
@@ -119,19 +114,19 @@ abstract class Figure implements IFigure {
         if (side === 'down') {
             moveY = this.row + 1;
         }
-        if (this.isCanMove(moveX, moveY)) {
-            this.cell = moveX;
-            this.row = moveY;
+
+        for (let puzzle of this.getPuzzles()) {
+            let barrier = config.scene.getPuzzle(puzzle.getCell() + (this.cell - moveX), puzzle.getRow());
+            if (barrier && barrier.getFigure() !== this) {
+                console.log(barrier);
+                return;
+            }
         }
+
+        this.cell = moveX;
+        this.row = moveY;
     }
 
-    isCanMove(x, y) {
-        if (x >= 0 && x <= 160) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
 }
 

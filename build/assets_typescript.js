@@ -66,8 +66,8 @@ var Scene = /** @class */ (function () {
             var figure = _a[_i];
             for (var _b = 0, _c = figure.getPuzzles(); _b < _c.length; _b++) {
                 var puzzle = _c[_b];
-                if (((figure.getCell() + puzzle.getCell()) === cell)
-                    && ((figure.getRow() + puzzle.getRow()) === row)) {
+                if (((puzzle.getCell()) === cell)
+                    && ((puzzle.getRow()) === row)) {
                     return puzzle;
                 }
             }
@@ -145,9 +145,6 @@ var Figure = /** @class */ (function () {
         this.puzzles = puzzles;
     };
     Figure.prototype.render = function () {
-        if (this.stop) {
-            return;
-        }
         var x;
         var y = this.row;
         for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
@@ -192,18 +189,16 @@ var Figure = /** @class */ (function () {
         if (side === 'down') {
             moveY = this.row + 1;
         }
-        if (this.isCanMove(moveX, moveY)) {
-            this.cell = moveX;
-            this.row = moveY;
+        for (var _i = 0, _a = this.getPuzzles(); _i < _a.length; _i++) {
+            var puzzle = _a[_i];
+            var barrier = config.scene.getPuzzle(puzzle.getCell() + (this.cell - moveX), puzzle.getRow());
+            if (barrier && barrier.getFigure() !== this) {
+                console.log(barrier);
+                return;
+            }
         }
-    };
-    Figure.prototype.isCanMove = function (x, y) {
-        if (x >= 0 && x <= 160) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        this.cell = moveX;
+        this.row = moveY;
     };
     return Figure;
 }());
@@ -358,6 +353,8 @@ var Puzzle = /** @class */ (function () {
         this.stepY = null;
         this.countStep = 10;
         this.currentStep = 0;
+        this.cell = 5; //  todo!!!!!
+        this.row = 5; //  todo!!!!!
     }
     Puzzle.prototype.getCell = function () {
         return this.cell;
@@ -365,15 +362,20 @@ var Puzzle = /** @class */ (function () {
     Puzzle.prototype.getRow = function () {
         return this.row;
     };
+    Puzzle.prototype.getFigure = function () {
+        return this.figure;
+    };
     Puzzle.prototype.setCtx = function (ctx) {
         this.ctx = ctx;
     };
     Puzzle.prototype.render = function (cell, row) {
-        var barrierPuzzle = config.scene.getPuzzle(cell, row);
-        if (barrierPuzzle && (barrierPuzzle !== this) && (this.color == '#f00')) {
-            // console.log(barrierPuzzle);
-            this.figure.stop = true;
+        if (this.color == '#f00') {
+            console.log(cell, row);
         }
+        // let barrierPuzzle = config.scene.getPuzzle(cell, row);
+        // if (barrierPuzzle && (barrierPuzzle !== this) && (this.color == '#f00')) {
+        //     console.log(barrierPuzzle);
+        // }
         // console.log(config.scene.getPuzzle(cell, row));
         this.cell = cell;
         this.row = row;

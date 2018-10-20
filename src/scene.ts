@@ -5,11 +5,11 @@ class Scene {
         this.figures.push(figure);
     }
 
-    getPuzzle(cell, row) {
+    getPuzzle(cell, row):IPuzzle {
         for (let figure of this.figures) {
             for (let puzzle of figure.getPuzzles()) {
-                if (((figure.getCell() + puzzle.getCell()) === cell)
-                    && ((figure.getRow() + puzzle.getRow()) === row)) {
+                if (((puzzle.getCell()) === cell)
+                    && ((puzzle.getRow()) === row)) {
                     return puzzle;
                 }
             }
