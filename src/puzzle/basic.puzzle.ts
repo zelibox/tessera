@@ -10,6 +10,10 @@ interface IPuzzle {
     setFigure(figure: IFigure)
 
     getFigure(): IFigure
+
+    remove();
+
+    setPosition(x: number, y: number): void;
 }
 
 abstract class Puzzle implements IPuzzle {
@@ -23,7 +27,7 @@ abstract class Puzzle implements IPuzzle {
     public futureY = null;
     public stepX = null;
     public stepY = null;
-    public countStep = 10;
+    public countStep = 8;
     public currentStep = 0;
     private ctx: CanvasRenderingContext2D;
     private cell: number = 5; //  todo!!!!!
@@ -42,23 +46,41 @@ abstract class Puzzle implements IPuzzle {
         return this.figure;
     }
 
+    setFigure(figure: IFigure) {
+        this.figure = figure;
+    }
+
     setCtx(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
     }
 
-    render(cell, row) {
-        if  (this.color == '#f00') {
-            console.log(cell, row)
+    remove() {
+        let shape = this.figure.getShape();
+        let x;
+        let y = 0;
+        for (let row of shape) {
+            x = 0;
+            for (let cell of row) {
+                if (cell === this) {
+                    shape[y][x] = 0;
+                }
+                x++;
+            }
+            y++;
         }
-        // let barrierPuzzle = config.scene.getPuzzle(cell, row);
-        // if (barrierPuzzle && (barrierPuzzle !== this) && (this.color == '#f00')) {
-        //     console.log(barrierPuzzle);
-        // }
-        // console.log(config.scene.getPuzzle(cell, row));
-        this.cell = cell;
-        this.row = row;
-        let x = cell * config.puzzleSize;
-        let y = row * config.puzzleSize;
+
+        this.figure.updateShape(shape);
+    }
+
+
+    setPosition(x: number, y: number): void {
+        this.cell = x;
+        this.row = y;
+    }
+
+    render() {
+        let x = this.cell * config.puzzleSize;
+        let y = this.row * config.puzzleSize;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
             this.y = y;
@@ -102,15 +124,9 @@ abstract class Puzzle implements IPuzzle {
         this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, r);
         this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, r);
         this.ctx.fillStyle = this.color;
-        // this.ctx.shadowColor = '#fbcf9d';
-        // this.ctx.shadowBlur = 2;
         this.ctx.fill();
         this.ctx.closePath();
         return this.ctx;
-    }
-
-    setFigure(figure: IFigure) {
-        this.figure = figure;
     }
 }
 

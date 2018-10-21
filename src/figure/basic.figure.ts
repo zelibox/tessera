@@ -1,10 +1,12 @@
 abstract class Figure implements IFigure {
-    private puzzles: IPuzzle[];
     private shape: Array<number | IPuzzle>[] = null;
-    private cell = 0;
-    private row = 0;
+    protected cell = 0;
+    protected row = 0;
 
     constructor(protected ctx: CanvasRenderingContext2D) {
+    }
+
+    impact(figure: IFigure) {
     }
 
     getCell(): number {
@@ -16,7 +18,16 @@ abstract class Figure implements IFigure {
     }
 
     getPuzzles() {
-        return this.puzzles;
+        let puzzles = [];
+        for (let row of this.getShape()) {
+            for (let puzzle of row) {
+                if (typeof  puzzle !== "number") {
+                    puzzles.push(puzzle);
+                }
+            }
+        }
+
+        return puzzles;
     }
 
     abstract initShape(): number[][];
@@ -31,6 +42,18 @@ abstract class Figure implements IFigure {
 
     updateShape(shape: Array<number | IPuzzle>[]) {
         this.shape = shape;
+        let x;
+        let y = this.row;
+        for (let row of this.getShape()) {
+            x = this.cell;
+            for (let puzzle of row) {
+                if (typeof puzzle !== "number") {
+                    puzzle.setPosition(x, y);
+                }
+                x += 1;
+            }
+            y += 1;
+        }
     }
 
     getCountPuzzlePlaces() {
@@ -66,68 +89,14 @@ abstract class Figure implements IFigure {
         }
 
         this.updateShape(shape);
-        this.puzzles = puzzles;
     }
+
 
     render() {
-        let x;
-        let y = this.row;
-        for (let row of this.getShape()) {
-            x = this.cell;
-            for (let place of row) {
-                if (typeof place !== "number") {
-                    place.render(x, y);
-                }
-                x += 1;
-            }
-            y += 1;
-        }
-    }
-
-    rotate(side: 'left' | 'right') {
-        const n = this.getShape().length - 1;
-        let shape = this.getShape().map((row, i) => {
-                row = row.map((val, j) => {
-                    return this.getShape()[n - j][i]
-                });
-                if (side === 'left') {
-                    row.reverse()
-                }
-                return row;
-            }
-        );
-        if (side === 'left') {
-            shape.reverse();
-        }
-        this.updateShape(shape);
-    }
-
-    move(side: 'left' | 'right' | 'down') {
-        let moveX = this.cell;
-        let moveY = this.row;
-        if (side === 'right') {
-            moveX = this.cell + 1;
-        }
-        if (side === 'left') {
-            moveX = this.cell - 1;
-        }
-        if (side === 'down') {
-            moveY = this.row + 1;
-        }
-
         for (let puzzle of this.getPuzzles()) {
-            let barrier = config.scene.getPuzzle(puzzle.getCell() + (this.cell - moveX), puzzle.getRow());
-            if (barrier && barrier.getFigure() !== this) {
-                console.log(barrier);
-                return;
-            }
+            puzzle.render();
         }
-
-        this.cell = moveX;
-        this.row = moveY;
     }
-
-
 }
 
 interface IFigure {
@@ -136,4 +105,10 @@ interface IFigure {
     getRow(): number;
 
     getPuzzles(): IPuzzle[];
+
+    impact(figure:IFigure);
+
+    getShape(): Array<number | IPuzzle>[];
+
+    updateShape(shape: Array<number | IPuzzle>[]);
 }

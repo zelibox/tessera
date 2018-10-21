@@ -1,7 +1,14 @@
 ///<reference path="scene.ts"/>
-let config = {
+interface IConfig {
+    puzzleSize: number,
+    rows: number,
+    cols: number,
+    scene: Scene
+}
+
+let config:IConfig = {
     puzzleSize: 20,
     rows: 22,
     cols: 12,
-    scene: new Scene()
+    scene: null
 };
