@@ -1,5 +1,7 @@
 body {
   background: #36486d;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 canvas {
   // border: 1px solid #f00;

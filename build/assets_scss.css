@@ -1,4 +1,6 @@
 body {
-  background: #36486d; }
+  background: #36486d;
+  overflow: hidden;
+  overscroll-behavior: contain; }
 
 /*# sourceMappingURL=assets_scss.css.map */
