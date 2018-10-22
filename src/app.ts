@@ -12,6 +12,7 @@ $(() => {
     });
     renderCanvas();
 
+
     function renderCanvas() {
         config.puzzleSize = window.innerHeight / config.rows;
         ctx.canvas.height = config.puzzleSize * config.rows;
