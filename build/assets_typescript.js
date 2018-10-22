@@ -9,9 +9,27 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 $(function () {
-    var canvasElement = document.getElementById('wrap');
+    var wrapJqueryElement = $('#wrap');
+    var canvasElement = wrapJqueryElement[0];
     var ctx = canvasElement.getContext('2d');
     config.scene = new Scene(ctx);
+    wrapJqueryElement.swipe({
+        //Generic swipe handler for all directions
+        swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
+            if (direction == 'left') { // left
+                config.scene.getInteractiveFigure().move('left');
+            }
+            else if (direction == 'right') { // right
+                config.scene.getInteractiveFigure().move('right');
+            }
+            else if (direction == 'up') { // up
+                config.scene.getInteractiveFigure().rotate('right');
+            }
+            else if (direction == 'down') { // down
+                config.scene.getInteractiveFigure().move('down');
+            }
+        }
+    });
     $("body").on('keydown', function (e) {
         if (e.keyCode == 37) { // left
             config.scene.getInteractiveFigure().move('left');
@@ -406,123 +424,6 @@ var config = {
     cols: 12,
     scene: null
 };
-var BorderFigure = /** @class */ (function (_super) {
-    __extends(BorderFigure, _super);
-    function BorderFigure() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    BorderFigure.prototype.initShape = function () {
-        var rows = config.rows;
-        var cols = config.cols;
-        var shape = [];
-        for (var r = 0; r < rows; r++) {
-            var row = [];
-            for (var c = 0; c < cols; c++) {
-                var v = 0;
-                if (r === 0 || r === (rows - 1) || c === 0 || c === (cols - 1)) {
-                    v = 1;
-                }
-                row.push(v);
-            }
-            shape.push(row);
-        }
-        return shape;
-    };
-    BorderFigure.prototype.impact = function (figure) {
-        config.scene.getWrapFigure().impact(figure);
-    };
-    return BorderFigure;
-}(Figure));
-var WrapFigure = /** @class */ (function (_super) {
-    __extends(WrapFigure, _super);
-    function WrapFigure() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.cell = 1;
-        _this.row = 1;
-        return _this;
-    }
-    WrapFigure.prototype.initShape = function () {
-        var rows = config.rows - 2;
-        var cols = config.cols - 2;
-        var shape = [];
-        for (var r = 0; r < rows; r++) {
-            var row = [];
-            for (var c = 0; c < cols; c++) {
-                row.push(0);
-            }
-            shape.push(row);
-        }
-        return shape;
-    };
-    WrapFigure.prototype.updateShape = function (shape) {
-        var fillRows = [];
-        for (var _i = 0, shape_2 = shape; _i < shape_2.length; _i++) {
-            var row = shape_2[_i];
-            for (var _a = 0, row_7 = row; _a < row_7.length; _a++) {
-                var cell = row_7[_a];
-                if (typeof cell !== "number") {
-                    fillRows.push(row);
-                    break;
-                }
-            }
-        }
-        var rows = config.rows - 2;
-        var cols = config.cols - 2;
-        var newShape = [];
-        for (var r = 0; r < rows; r++) {
-            if ((shape.length - fillRows.length) > r) {
-                var row = [];
-                for (var c = 0; c < cols; c++) {
-                    row.push(0);
-                }
-                newShape.push(row);
-            }
-            else {
-                newShape.push(fillRows[r - (shape.length - fillRows.length)]);
-            }
-        }
-        _super.prototype.updateShape.call(this, newShape);
-    };
-    WrapFigure.prototype.impact = function (figure) {
-        var x;
-        var y = figure.getRow();
-        var shape = this.getShape();
-        for (var _i = 0, _a = figure.getShape(); _i < _a.length; _i++) {
-            var row = _a[_i];
-            x = figure.getCell();
-            for (var _b = 0, row_8 = row; _b < row_8.length; _b++) {
-                var puzzle = row_8[_b];
-                if (typeof puzzle !== "number") {
-                    puzzle.setFigure(this);
-                    shape[y - 1][x - 1] = puzzle;
-                }
-                x += 1;
-            }
-            y += 1;
-        }
-        for (var _c = 0, shape_3 = shape; _c < shape_3.length; _c++) {
-            var row = shape_3[_c];
-            var countFill = 0;
-            for (var _d = 0, row_9 = row; _d < row_9.length; _d++) {
-                var cell = row_9[_d];
-                if (typeof cell !== "number") {
-                    countFill++;
-                }
-                if (countFill === row.length) {
-                    for (var _e = 0, row_10 = row; _e < row_10.length; _e++) {
-                        var cell_1 = row_10[_e];
-                        if (typeof cell_1 !== "number") {
-                            cell_1.remove();
-                        }
-                    }
-                }
-            }
-        }
-        this.updateShape(shape);
-        config.scene.initInteractiveFigure();
-    };
-    return WrapFigure;
-}(Figure));
 var Puzzle = /** @class */ (function () {
     function Puzzle() {
         this.width = config.puzzleSize - 1;
@@ -558,11 +459,11 @@ var Puzzle = /** @class */ (function () {
         var shape = this.figure.getShape();
         var x;
         var y = 0;
-        for (var _i = 0, shape_4 = shape; _i < shape_4.length; _i++) {
-            var row = shape_4[_i];
+        for (var _i = 0, shape_2 = shape; _i < shape_2.length; _i++) {
+            var row = shape_2[_i];
             x = 0;
-            for (var _a = 0, row_11 = row; _a < row_11.length; _a++) {
-                var cell = row_11[_a];
+            for (var _a = 0, row_7 = row; _a < row_7.length; _a++) {
+                var cell = row_7[_a];
                 if (cell === this) {
                     shape[y][x] = 0;
                 }
@@ -646,5 +547,122 @@ var BorderPuzzle = /** @class */ (function (_super) {
     }
     return BorderPuzzle;
 }(Puzzle));
+var BorderFigure = /** @class */ (function (_super) {
+    __extends(BorderFigure, _super);
+    function BorderFigure() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    BorderFigure.prototype.initShape = function () {
+        var rows = config.rows;
+        var cols = config.cols;
+        var shape = [];
+        for (var r = 0; r < rows; r++) {
+            var row = [];
+            for (var c = 0; c < cols; c++) {
+                var v = 0;
+                if (r === 0 || r === (rows - 1) || c === 0 || c === (cols - 1)) {
+                    v = 1;
+                }
+                row.push(v);
+            }
+            shape.push(row);
+        }
+        return shape;
+    };
+    BorderFigure.prototype.impact = function (figure) {
+        config.scene.getWrapFigure().impact(figure);
+    };
+    return BorderFigure;
+}(Figure));
+var WrapFigure = /** @class */ (function (_super) {
+    __extends(WrapFigure, _super);
+    function WrapFigure() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.cell = 1;
+        _this.row = 1;
+        return _this;
+    }
+    WrapFigure.prototype.initShape = function () {
+        var rows = config.rows - 2;
+        var cols = config.cols - 2;
+        var shape = [];
+        for (var r = 0; r < rows; r++) {
+            var row = [];
+            for (var c = 0; c < cols; c++) {
+                row.push(0);
+            }
+            shape.push(row);
+        }
+        return shape;
+    };
+    WrapFigure.prototype.updateShape = function (shape) {
+        var fillRows = [];
+        for (var _i = 0, shape_3 = shape; _i < shape_3.length; _i++) {
+            var row = shape_3[_i];
+            for (var _a = 0, row_8 = row; _a < row_8.length; _a++) {
+                var cell = row_8[_a];
+                if (typeof cell !== "number") {
+                    fillRows.push(row);
+                    break;
+                }
+            }
+        }
+        var rows = config.rows - 2;
+        var cols = config.cols - 2;
+        var newShape = [];
+        for (var r = 0; r < rows; r++) {
+            if ((shape.length - fillRows.length) > r) {
+                var row = [];
+                for (var c = 0; c < cols; c++) {
+                    row.push(0);
+                }
+                newShape.push(row);
+            }
+            else {
+                newShape.push(fillRows[r - (shape.length - fillRows.length)]);
+            }
+        }
+        _super.prototype.updateShape.call(this, newShape);
+    };
+    WrapFigure.prototype.impact = function (figure) {
+        var x;
+        var y = figure.getRow();
+        var shape = this.getShape();
+        for (var _i = 0, _a = figure.getShape(); _i < _a.length; _i++) {
+            var row = _a[_i];
+            x = figure.getCell();
+            for (var _b = 0, row_9 = row; _b < row_9.length; _b++) {
+                var puzzle = row_9[_b];
+                if (typeof puzzle !== "number") {
+                    puzzle.setFigure(this);
+                    shape[y - 1][x - 1] = puzzle;
+                }
+                x += 1;
+            }
+            y += 1;
+        }
+        for (var _c = 0, shape_4 = shape; _c < shape_4.length; _c++) {
+            var row = shape_4[_c];
+            var countFill = 0;
+            for (var _d = 0, row_10 = row; _d < row_10.length; _d++) {
+                var cell = row_10[_d];
+                if (typeof cell !== "number") {
+                    countFill++;
+                }
+                if (countFill === row.length) {
+                    for (var _e = 0, row_11 = row; _e < row_11.length; _e++) {
+                        var cell_1 = row_11[_e];
+                        if (typeof cell_1 !== "number") {
+                            cell_1.remove();
+                        }
+                    }
+                }
+            }
+        }
+        this.updateShape(shape);
+        config.scene.initInteractiveFigure();
+    };
+    return WrapFigure;
+}(Figure));
 
 //# sourceMappingURL=assets_typescript.js.map
