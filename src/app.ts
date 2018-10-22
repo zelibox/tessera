@@ -3,8 +3,20 @@ $(() => {
     let canvasElement = wrapJqueryElement[0];
     let ctx = canvasElement.getContext('2d');
 
+
     config.scene = new Scene(ctx);
 
+
+    $( window ).resize(function() {
+        renderCanvas();
+    });
+    renderCanvas();
+
+    function renderCanvas() {
+        config.puzzleSize = window.innerWidth / config.cols;
+        ctx.canvas.height = config.puzzleSize * config.rows;
+        ctx.canvas.width = config.puzzleSize * config.cols;
+    }
 
     wrapJqueryElement.swipe( {
         //Generic swipe handler for all directions
@@ -40,7 +52,7 @@ $(() => {
     });
 
     function draw() {
-        ctx.clearRect(0, 0, 240, 440);
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         config.scene.render();
         requestAnimationFrame(draw);
     }

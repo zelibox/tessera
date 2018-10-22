@@ -13,6 +13,16 @@ $(function () {
     var canvasElement = wrapJqueryElement[0];
     var ctx = canvasElement.getContext('2d');
     config.scene = new Scene(ctx);
+    $(window).resize(function () {
+        renderCanvas();
+    });
+    renderCanvas();
+    function renderCanvas() {
+        console.log(window.innerWidth, config.cols);
+        config.puzzleSize = window.innerWidth / config.cols;
+        ctx.canvas.height = config.puzzleSize * config.rows;
+        ctx.canvas.width = config.puzzleSize * config.cols;
+    }
     wrapJqueryElement.swipe({
         //Generic swipe handler for all directions
         swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
@@ -45,7 +55,7 @@ $(function () {
         }
     });
     function draw() {
-        ctx.clearRect(0, 0, 240, 440);
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         config.scene.render();
         requestAnimationFrame(draw);
     }
@@ -426,8 +436,6 @@ var config = {
 };
 var Puzzle = /** @class */ (function () {
     function Puzzle() {
-        this.width = config.puzzleSize - 1;
-        this.height = config.puzzleSize - 1;
         this.color = "#fbcf9d";
         this.x = null;
         this.y = null;
@@ -478,6 +486,8 @@ var Puzzle = /** @class */ (function () {
         this.row = y;
     };
     Puzzle.prototype.render = function () {
+        var width = config.puzzleSize - 1;
+        var height = config.puzzleSize - 1;
         var x = this.cell * config.puzzleSize;
         var y = this.row * config.puzzleSize;
         if ((this.x === null) || (this.y === null)) {
@@ -514,16 +524,16 @@ var Puzzle = /** @class */ (function () {
         }
         this.currentStep++;
         var r = 2;
-        if (this.width < 2 * r)
-            r = this.width / 2;
-        if (this.height < 2 * r)
-            r = this.height / 2;
+        if (width < 2 * r)
+            r = width / 2;
+        if (height < 2 * r)
+            r = height / 2;
         this.ctx.beginPath();
         this.ctx.moveTo(this.x + r, this.y);
-        this.ctx.arcTo(this.x + this.width, this.y, this.x + this.width, this.y + this.height, r);
-        this.ctx.arcTo(this.x + this.width, this.y + this.height, this.x, this.y + this.height, r);
-        this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, r);
-        this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, r);
+        this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
+        this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
+        this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
+        this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
         this.ctx.fillStyle = this.color;
         this.ctx.fill();
         this.ctx.closePath();

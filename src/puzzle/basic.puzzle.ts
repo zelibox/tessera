@@ -17,8 +17,6 @@ interface IPuzzle {
 }
 
 abstract class Puzzle implements IPuzzle {
-    protected width = config.puzzleSize - 1;
-    protected height = config.puzzleSize - 1;
     public color = "#fbcf9d";
 
     public x = null;
@@ -79,6 +77,9 @@ abstract class Puzzle implements IPuzzle {
     }
 
     render() {
+        let width = config.puzzleSize - 1;
+        let height = config.puzzleSize - 1;
+
         let x = this.cell * config.puzzleSize;
         let y = this.row * config.puzzleSize;
         if ((this.x === null) || (this.y === null)) {
@@ -115,14 +116,14 @@ abstract class Puzzle implements IPuzzle {
         }
         this.currentStep++;
         let r = 2;
-        if (this.width < 2 * r) r = this.width / 2;
-        if (this.height < 2 * r) r = this.height / 2;
+        if (width < 2 * r) r = width / 2;
+        if (height < 2 * r) r = height / 2;
         this.ctx.beginPath();
         this.ctx.moveTo(this.x + r, this.y);
-        this.ctx.arcTo(this.x + this.width, this.y, this.x + this.width, this.y + this.height, r);
-        this.ctx.arcTo(this.x + this.width, this.y + this.height, this.x, this.y + this.height, r);
-        this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, r);
-        this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, r);
+        this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
+        this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
+        this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
+        this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
         this.ctx.fillStyle = this.color;
         this.ctx.fill();
         this.ctx.closePath();
