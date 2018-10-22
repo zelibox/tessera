@@ -2,12 +2,15 @@
 abstract class InteractiveFigure extends Figure {
     protected row = 1;
     protected cell = Math.floor((config.cols / 2) - (this.getShape()[0].length / 2));
-
+    private renderStartDate: Date = null;
     private tickCount: number = 0;
 
     render(): void {
-        this.tickCount++;
-        if ((this.tickCount % 30) === 0) {
+        if (!this.renderStartDate) {
+            this.renderStartDate = new Date();
+        }
+        if ((new Date() - this.renderStartDate) >= 250) {
+            this.renderStartDate = new Date();
             this.move("down")
         }
         super.render();

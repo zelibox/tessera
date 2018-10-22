@@ -25,12 +25,12 @@ abstract class Puzzle implements IPuzzle {
     public futureY = null;
     public stepX = null;
     public stepY = null;
-    public countStep = 8;
-    public currentStep = 0;
+    public animationTime = 250;
     private ctx: CanvasRenderingContext2D;
     private cell: number = 5; //  todo!!!!!
     private row: number = 5; //  todo!!!!!
     private figure: IFigure;
+    private renderStartDate: Date;
 
     getCell() {
         return this.cell;
@@ -87,34 +87,35 @@ abstract class Puzzle implements IPuzzle {
             this.y = y;
             this.futureX = x;
             this.futureY = y;
-            this.currentStep = 0;
+            this.renderStartDate = new Date();
         } else {
             if ((x !== this.futureX) || (y !== this.futureY)) {
                 this.futureX = x;
                 this.futureY = y;
-                this.currentStep = 0;
+                this.renderStartDate = new Date();
+            }
+            let diff = new Date() - this.renderStartDate;
 
-                if (this.x > this.futureX) {
-                    this.stepX = ((this.x - this.futureX) / this.countStep) * -1;
-                } else {
-                    this.stepX = ((this.futureX - this.x) / this.countStep);
-                }
-                if (this.y > this.futureY) {
-                    this.stepY = ((this.y - this.futureY) / this.countStep) * -1;
-                } else {
-                    this.stepY = ((this.futureY - this.y) / this.countStep);
-                }
+            if (this.x > this.futureX) {
+                this.stepX = ((this.x - this.futureX) * (diff / this.animationTime)) * -1;
+            } else {
+                this.stepX = ((this.futureX - this.x) * (diff / this.animationTime));
+            }
+            if (this.y > this.futureY) {
+                this.stepY = ((this.y - this.futureY) * (diff / this.animationTime)) * -1;
+            } else {
+                this.stepY = ((this.futureY - this.y) * (diff / this.animationTime));
             }
 
             this.x += this.stepX;
             this.y += this.stepY;
 
-            if (this.currentStep >= this.countStep) {
+            if (diff >= this.animationTime) {
                 this.x = this.futureX;
                 this.y = this.futureY;
             }
         }
-        this.currentStep++;
+
         let r = 2;
         if (width < 2 * r) r = width / 2;
         if (height < 2 * r) r = height / 2;

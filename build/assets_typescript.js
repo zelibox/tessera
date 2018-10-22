@@ -22,16 +22,47 @@ $(function () {
         ctx.canvas.height = config.puzzleSize * config.rows;
         ctx.canvas.width = config.puzzleSize * config.cols;
     }
+    var lastLeft = 0;
+    var lastRight = 0;
     wrapJqueryElement.swipe({
         //Generic swipe handler for all directions
+        swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+            var str = "<h4>Swipe Phase : " + phase + "<br/>";
+            str += "Current direction: " + currentDirection + "<br/>";
+            str += "Direction from inital touch: " + direction + "<br/>";
+            str += "Distance from inital touch: " + distance + "<br/>";
+            str += "Duration of swipe: " + duration + "<br/>";
+            str += "Fingers used: " + fingers + "<br/></h4>";
+            console.log(currentDirection, distance);
+            // if (distance < lastD) {
+            //     lastD = distance;
+            // }
+            if (currentDirection == 'left') { // left
+                lastRight = 0;
+                if ((distance - lastLeft) > 30 || (distance < lastLeft)) {
+                    lastLeft = distance;
+                    config.scene.getInteractiveFigure().move('left');
+                }
+            }
+            else if (currentDirection == 'right') { // right
+                lastLeft = 0;
+                if ((distance - lastRight) > 30 || (distance < lastRight)) {
+                    lastRight = distance;
+                    config.scene.getInteractiveFigure().move('right');
+                }
+            }
+            // if(phase==$.fn.swipe.phases.PHASE_CANCEL) {
+            //     $(this).text("swipe cancelled (due to finger count) "  );
+            // }
+        },
         swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
-            if (direction == 'left') { // left
-                config.scene.getInteractiveFigure().move('left');
-            }
-            else if (direction == 'right') { // right
-                config.scene.getInteractiveFigure().move('right');
-            }
-            else if (direction == 'up') { // up
+            // if (direction == 'left') { // left
+            //     config.scene.getInteractiveFigure().move('left')
+            // }
+            // else if (direction == 'right') { // right
+            //     config.scene.getInteractiveFigure().move('right')
+            // }
+            if (direction == 'up') { // up
                 config.scene.getInteractiveFigure().rotate('right');
             }
             else if (direction == 'down') { // down
@@ -161,12 +192,16 @@ var InteractiveFigure = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.row = 1;
         _this.cell = Math.floor((config.cols / 2) - (_this.getShape()[0].length / 2));
+        _this.renderStartDate = null;
         _this.tickCount = 0;
         return _this;
     }
     InteractiveFigure.prototype.render = function () {
-        this.tickCount++;
-        if ((this.tickCount % 30) === 0) {
+        if (!this.renderStartDate) {
+            this.renderStartDate = new Date();
+        }
+        if ((new Date() - this.renderStartDate) >= 250) {
+            this.renderStartDate = new Date();
             this.move("down");
         }
         _super.prototype.render.call(this);
@@ -559,8 +594,7 @@ var Puzzle = /** @class */ (function () {
         this.futureY = null;
         this.stepX = null;
         this.stepY = null;
-        this.countStep = 8;
-        this.currentStep = 0;
+        this.animationTime = 250;
         this.cell = 5; //  todo!!!!!
         this.row = 5; //  todo!!!!!
     }
@@ -611,34 +645,34 @@ var Puzzle = /** @class */ (function () {
             this.y = y;
             this.futureX = x;
             this.futureY = y;
-            this.currentStep = 0;
+            this.renderStartDate = new Date();
         }
         else {
             if ((x !== this.futureX) || (y !== this.futureY)) {
                 this.futureX = x;
                 this.futureY = y;
-                this.currentStep = 0;
-                if (this.x > this.futureX) {
-                    this.stepX = ((this.x - this.futureX) / this.countStep) * -1;
-                }
-                else {
-                    this.stepX = ((this.futureX - this.x) / this.countStep);
-                }
-                if (this.y > this.futureY) {
-                    this.stepY = ((this.y - this.futureY) / this.countStep) * -1;
-                }
-                else {
-                    this.stepY = ((this.futureY - this.y) / this.countStep);
-                }
+                this.renderStartDate = new Date();
+            }
+            var diff = new Date() - this.renderStartDate;
+            if (this.x > this.futureX) {
+                this.stepX = ((this.x - this.futureX) * (diff / this.animationTime)) * -1;
+            }
+            else {
+                this.stepX = ((this.futureX - this.x) * (diff / this.animationTime));
+            }
+            if (this.y > this.futureY) {
+                this.stepY = ((this.y - this.futureY) * (diff / this.animationTime)) * -1;
+            }
+            else {
+                this.stepY = ((this.futureY - this.y) * (diff / this.animationTime));
             }
             this.x += this.stepX;
             this.y += this.stepY;
-            if (this.currentStep >= this.countStep) {
+            if (diff >= this.animationTime) {
                 this.x = this.futureX;
                 this.y = this.futureY;
             }
         }
-        this.currentStep++;
         var r = 2;
         if (width < 2 * r)
             r = width / 2;
