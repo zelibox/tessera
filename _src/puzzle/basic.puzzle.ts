@@ -1,6 +1,8 @@
 interface IPuzzle {
     render(cell, row)
 
+    setCtx(ctx: CanvasRenderingContext2D)
+
     getCell(): number;
 
     getRow(): number;
@@ -15,6 +17,8 @@ interface IPuzzle {
 }
 
 abstract class Puzzle implements IPuzzle {
+    public color = "#fbcf9d";
+
     public x = null;
     public y = null;
     public futureX = null;
@@ -22,6 +26,7 @@ abstract class Puzzle implements IPuzzle {
     public stepX = null;
     public stepY = null;
     public animationTime = 250;
+    private ctx: CanvasRenderingContext2D;
     private cell: number = 5; //  todo!!!!!
     private row: number = 5; //  todo!!!!!
     private figure: IFigure;
@@ -41,6 +46,10 @@ abstract class Puzzle implements IPuzzle {
 
     setFigure(figure: IFigure) {
         this.figure = figure;
+    }
+
+    setCtx(ctx: CanvasRenderingContext2D) {
+        this.ctx = ctx;
     }
 
     remove() {
@@ -65,15 +74,14 @@ abstract class Puzzle implements IPuzzle {
     setPosition(x: number, y: number): void {
         this.cell = x;
         this.row = y;
-        console.log(x, y)
     }
 
     render() {
-        let width = this.figure.getScene().puzzleSize - 1;
-        let height = this.figure.getScene().puzzleSize - 1;
+        let width = config.puzzleSize - 1;
+        let height = config.puzzleSize - 1;
 
-        let x = this.cell * this.figure.getScene().puzzleSize;
-        let y = this.row * this.figure.getScene().puzzleSize;
+        let x = this.cell * config.puzzleSize;
+        let y = this.row * config.puzzleSize;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
             this.y = y;
@@ -108,35 +116,19 @@ abstract class Puzzle implements IPuzzle {
             }
         }
 
-        let app = this.figure.getScene().getApp();
         let r = 2;
-
-        // if (width < 2 * r) r = width / 2;
-        // if (height < 2 * r) r = height / 2;
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(this.x + r, this.y);
-        // this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
-        // this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
-        // this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
-        // this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
-        // this.ctx.fillStyle = this.color;
-        // this.ctx.fill();
-        // this.ctx.closePath();
-        // return this.ctx;
-        let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(2, 0xFF00FF, 1);
-        // graphics.beginFill(0xFF3300);
-        // graphics.lineStyle(10, 0xffd900, 1);
-        // graphics.beginFill(0xfbcf9d, 0.25);
-        // graphics.drawRoundedRect(this.x, this.y, width, height, r);
-        graphics.lineStyle(0);
-        graphics.beginFill(0xFFFF0B, 0.5);
-        graphics.drawCircle(470, 200,100);
-        graphics.endFill();
-        // graphics.endFill();
-        app.stage.addChild(graphics);
-
-        // console.log('ololo')
+        if (width < 2 * r) r = width / 2;
+        if (height < 2 * r) r = height / 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x + r, this.y);
+        this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
+        this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
+        this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
+        this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
+        this.ctx.fillStyle = this.color;
+        this.ctx.fill();
+        this.ctx.closePath();
+        return this.ctx;
     }
 }
 

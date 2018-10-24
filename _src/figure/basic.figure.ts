@@ -1,14 +1,20 @@
 abstract class Figure implements IFigure {
     private shape: Array<number | IPuzzle>[] = null;
+    protected cell = 0;
+    protected row = 0;
 
-    constructor(private scene: Scene) {
-    }
-
-    getScene(): Scene {
-        return this.scene;
+    constructor(protected ctx: CanvasRenderingContext2D) {
     }
 
     impact(figure: IFigure) {
+    }
+
+    getCell(): number {
+        return this.cell;
+    }
+
+    getRow(): number {
+        return this.row;
     }
 
     getPuzzles() {
@@ -37,12 +43,11 @@ abstract class Figure implements IFigure {
     updateShape(shape: Array<number | IPuzzle>[]) {
         this.shape = shape;
         let x;
-        let y = this.getRow();
+        let y = this.row;
         for (let row of this.getShape()) {
-            x = this.getCell();
+            x = this.cell;
             for (let puzzle of row) {
                 if (typeof puzzle !== "number") {
-                    console.log(x);
                     puzzle.setPosition(x, y);
                 }
                 x += 1;
@@ -50,12 +55,6 @@ abstract class Figure implements IFigure {
             y += 1;
         }
     }
-
-
-    abstract getCell(): number;
-    abstract getRow(): number;
-
-
 
     getCountPuzzlePlaces() {
         let count = 0;
@@ -79,6 +78,7 @@ abstract class Figure implements IFigure {
             for (let place of row) {
                 if (place !== 0) {
                     rowShape.push(puzzles[index]);
+                    puzzles[index].setCtx(this.ctx);
                     puzzles[index].setFigure(this);
                     index++;
                 } else {
@@ -106,9 +106,7 @@ interface IFigure {
 
     getPuzzles(): IPuzzle[];
 
-    impact(figure: IFigure);
-
-    getScene(): Scene;
+    impact(figure:IFigure);
 
     getShape(): Array<number | IPuzzle>[];
 

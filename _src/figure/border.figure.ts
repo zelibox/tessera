@@ -1,14 +1,7 @@
 class BorderFigure extends Figure {
-    getCell(): number {
-        return 0;
-    }
-
-    getRow(): number {
-        return 0;
-    }
     initShape(): number[][] {
-        let rows = this.getScene().rows;
-        let cols = this.getScene().cols;
+        let rows = config.rows;
+        let cols = config.cols;
         let shape = [];
         for (let r = 0; r < rows; r++) {
             let row = [];
@@ -26,6 +19,6 @@ class BorderFigure extends Figure {
 
 
     impact(figure: IFigure) {
-        this.getScene().getWrapFigure().impact(figure);
+        config.scene.getWrapFigure().impact(figure);
     }
 }

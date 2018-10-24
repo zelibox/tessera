@@ -9,102 +9,98 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 $(function () {
-    var wrapJqueryElement = $('#wrap');
-    var canvasElement = wrapJqueryElement[0];
-    var ctx = canvasElement.getContext('2d');
-    config.scene = new Scene(ctx);
-    $(window).resize(function () {
-        renderCanvas();
+    var app = new PIXI.Application({
+        autoResize: true,
+        resolution: devicePixelRatio
     });
-    renderCanvas();
-    function renderCanvas() {
-        config.puzzleSize = window.innerHeight / config.rows;
-        ctx.canvas.height = config.puzzleSize * config.rows;
-        ctx.canvas.width = config.puzzleSize * config.cols;
+    app.stage.interactive = true;
+    var scene = new Scene(app);
+    document.body.appendChild(app.view);
+    window.addEventListener('resize', resize);
+    function resize() {
+        app.renderer.resize(window.innerWidth, window.innerHeight);
     }
-    var lastLeft = 0;
-    var lastRight = 0;
-    wrapJqueryElement.swipe({
-        //Generic swipe handler for all directions
-        swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
-            var str = "<h4>Swipe Phase : " + phase + "<br/>";
-            str += "Current direction: " + currentDirection + "<br/>";
-            str += "Direction from inital touch: " + direction + "<br/>";
-            str += "Distance from inital touch: " + distance + "<br/>";
-            str += "Duration of swipe: " + duration + "<br/>";
-            str += "Fingers used: " + fingers + "<br/></h4>";
-            console.log(currentDirection, distance);
-            // if (distance < lastD) {
-            //     lastD = distance;
-            // }
-            if (currentDirection == 'left') { // left
-                lastRight = 0;
-                if ((distance - lastLeft) > 30 || (distance < lastLeft)) {
-                    lastLeft = distance;
-                    config.scene.getInteractiveFigure().move('left');
-                }
-            }
-            else if (currentDirection == 'right') { // right
-                lastLeft = 0;
-                if ((distance - lastRight) > 30 || (distance < lastRight)) {
-                    lastRight = distance;
-                    config.scene.getInteractiveFigure().move('right');
-                }
-            }
-            // if(phase==$.fn.swipe.phases.PHASE_CANCEL) {
-            //     $(this).text("swipe cancelled (due to finger count) "  );
-            // }
-        },
-        swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
-            // if (direction == 'left') { // left
-            //     config.scene.getInteractiveFigure().move('left')
-            // }
-            // else if (direction == 'right') { // right
-            //     config.scene.getInteractiveFigure().move('right')
-            // }
-            if (direction == 'up') { // up
-                config.scene.getInteractiveFigure().rotate('right');
-            }
-            else if (direction == 'down') { // down
-                config.scene.getInteractiveFigure().move('down');
-            }
-        }
+    resize();
+    app.ticker.add(function () {
+        scene.render();
     });
-    $("body").on('keydown', function (e) {
-        if (e.keyCode == 37) { // left
-            config.scene.getInteractiveFigure().move('left');
-        }
-        else if (e.keyCode == 39) { // right
-            config.scene.getInteractiveFigure().move('right');
-        }
-        else if (e.keyCode == 38) { // up
-            config.scene.getInteractiveFigure().rotate('right');
-        }
-        else if (e.keyCode == 40) { // down
-            config.scene.getInteractiveFigure().move('down');
-        }
-    });
-    function draw() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        config.scene.render();
-        requestAnimationFrame(draw);
-    }
-    draw();
 });
-var Figure = /** @class */ (function () {
-    function Figure(ctx) {
-        this.ctx = ctx;
-        this.shape = null;
-        this.cell = 0;
-        this.row = 0;
+var Scene = /** @class */ (function () {
+    function Scene(app) {
+        this.app = app;
+        console.log(this.app);
+        this.initInteractiveFigure();
+        this.initBorderFigure();
+        this.wrapFigure = new WrapFigure(this);
     }
+    Scene.prototype.getApp = function () {
+        return this.app;
+    };
+    Scene.prototype.initInteractiveFigure = function () {
+        // todo
+        var figures = [
+            InteractiveFigureI,
+            InteractiveFigureO,
+            InteractiveFigureT,
+            InteractiveFigureS,
+            InteractiveFigureZ,
+            InteractiveFigureJ,
+            InteractiveFigureL,
+            InteractiveFigureDot,
+        ];
+        this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
+        this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
+    };
+    Scene.prototype.initBorderFigure = function () {
+        this.borderFigure = new BorderFigure(this);
+        this.borderFigure.insertPuzzles(this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle));
+    };
+    Scene.prototype.getInteractiveFigure = function () {
+        return this.interactiveFigure;
+    };
+    Scene.prototype.getBorderFigure = function () {
+        return this.borderFigure;
+    };
+    Scene.prototype.getWrapFigure = function () {
+        return this.wrapFigure;
+    };
+    Scene.prototype.getPuzzle = function (cell, row) {
+        for (var _i = 0, _a = [this.borderFigure, this.wrapFigure]; _i < _a.length; _i++) {
+            var figure = _a[_i];
+            for (var _b = 0, _c = figure.getPuzzles(); _b < _c.length; _b++) {
+                var puzzle = _c[_b];
+                if (((puzzle.getCell()) === cell)
+                    && ((puzzle.getRow()) === row)) {
+                    return puzzle;
+                }
+            }
+        }
+        return null;
+    };
+    Scene.prototype.generatePuzzles = function (count, type) {
+        var arr = [];
+        for (var i = 0; i < count; i++) {
+            arr.push(new type());
+        }
+        return arr;
+    };
+    Scene.prototype.render = function () {
+        for (var _i = 0, _a = [this.interactiveFigure, this.borderFigure, this.wrapFigure]; _i < _a.length; _i++) {
+            var figure = _a[_i];
+            figure.render();
+        }
+    };
+    return Scene;
+}());
+var Figure = /** @class */ (function () {
+    function Figure(scene) {
+        this.scene = scene;
+        this.shape = null;
+    }
+    Figure.prototype.getScene = function () {
+        return this.scene;
+    };
     Figure.prototype.impact = function (figure) {
-    };
-    Figure.prototype.getCell = function () {
-        return this.cell;
-    };
-    Figure.prototype.getRow = function () {
-        return this.row;
     };
     Figure.prototype.getPuzzles = function () {
         var puzzles = [];
@@ -128,13 +124,14 @@ var Figure = /** @class */ (function () {
     Figure.prototype.updateShape = function (shape) {
         this.shape = shape;
         var x;
-        var y = this.row;
+        var y = this.getRow();
         for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
-            x = this.cell;
+            x = this.getCell();
             for (var _b = 0, row_2 = row; _b < row_2.length; _b++) {
                 var puzzle = row_2[_b];
                 if (typeof puzzle !== "number") {
+                    console.log(x);
                     puzzle.setPosition(x, y);
                 }
                 x += 1;
@@ -165,7 +162,6 @@ var Figure = /** @class */ (function () {
                 var place = row_4[_b];
                 if (place !== 0) {
                     rowShape.push(puzzles[index]);
-                    puzzles[index].setCtx(this.ctx);
                     puzzles[index].setFigure(this);
                     index++;
                 }
@@ -185,17 +181,54 @@ var Figure = /** @class */ (function () {
     };
     return Figure;
 }());
+var BorderFigure = /** @class */ (function (_super) {
+    __extends(BorderFigure, _super);
+    function BorderFigure() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    BorderFigure.prototype.getCell = function () {
+        return 0;
+    };
+    BorderFigure.prototype.getRow = function () {
+        return 0;
+    };
+    BorderFigure.prototype.initShape = function () {
+        var rows = this.getScene().rows;
+        var cols = this.getScene().cols;
+        var shape = [];
+        for (var r = 0; r < rows; r++) {
+            var row = [];
+            for (var c = 0; c < cols; c++) {
+                var v = 0;
+                if (r === 0 || r === (rows - 1) || c === 0 || c === (cols - 1)) {
+                    v = 1;
+                }
+                row.push(v);
+            }
+            shape.push(row);
+        }
+        return shape;
+    };
+    BorderFigure.prototype.impact = function (figure) {
+        this.getScene().getWrapFigure().impact(figure);
+    };
+    return BorderFigure;
+}(Figure));
 ///<reference path="basic.figure.ts"/>
 var InteractiveFigure = /** @class */ (function (_super) {
     __extends(InteractiveFigure, _super);
     function InteractiveFigure() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.row = 1;
-        _this.cell = Math.floor((config.cols / 2) - (_this.getShape()[0].length / 2));
         _this.renderStartDate = null;
-        _this.tickCount = 0;
         return _this;
     }
+    InteractiveFigure.prototype.getCell = function () {
+        return Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2));
+        ;
+    };
+    InteractiveFigure.prototype.getRow = function () {
+        return 1;
+    };
     InteractiveFigure.prototype.render = function () {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
@@ -222,14 +255,14 @@ var InteractiveFigure = /** @class */ (function (_super) {
             shape.reverse();
         }
         var x;
-        var y = this.row;
+        var y = this.getRow();
         for (var _i = 0, shape_1 = shape; _i < shape_1.length; _i++) {
             var row = shape_1[_i];
-            x = this.cell;
+            x = this.getCell();
             for (var _a = 0, row_5 = row; _a < row_5.length; _a++) {
                 var puzzle = row_5[_a];
                 if (typeof puzzle !== "number") {
-                    var barrier = config.scene.getPuzzle(x, y);
+                    var barrier = this.getScene().getPuzzle(x, y);
                     if (barrier && barrier.getFigure() !== this) {
                         return;
                     }
@@ -263,7 +296,7 @@ var InteractiveFigure = /** @class */ (function (_super) {
             for (var _b = 0, row_6 = row; _b < row_6.length; _b++) {
                 var puzzle = row_6[_b];
                 if (typeof puzzle !== "number") {
-                    barrier = config.scene.getPuzzle(x, y);
+                    barrier = this.getScene().getPuzzle(x, y);
                     if (barrier && barrier.getFigure() !== this) {
                         barrierType = side;
                         break labelStop;
@@ -396,105 +429,6 @@ var InteractiveFigureDot = /** @class */ (function (_super) {
     };
     return InteractiveFigureDot;
 }(InteractiveFigure));
-///<reference path="figure/interactive.figure.ts"/>
-///<reference path="figure/basic.figure.ts"/>
-var Scene = /** @class */ (function () {
-    function Scene(ctx) {
-        this.ctx = ctx;
-        this.initInteractiveFigure();
-        this.initBorderFigure();
-        this.wrapFigure = new WrapFigure(ctx);
-    }
-    Scene.prototype.initInteractiveFigure = function () {
-        // todo
-        var figures = [
-            InteractiveFigureI,
-            InteractiveFigureO,
-            InteractiveFigureT,
-            InteractiveFigureS,
-            InteractiveFigureZ,
-            InteractiveFigureJ,
-            InteractiveFigureL,
-            InteractiveFigureDot,
-        ];
-        this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this.ctx);
-        this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
-    };
-    Scene.prototype.initBorderFigure = function () {
-        this.borderFigure = new BorderFigure(this.ctx);
-        this.borderFigure.insertPuzzles(this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle));
-    };
-    Scene.prototype.getInteractiveFigure = function () {
-        return this.interactiveFigure;
-    };
-    Scene.prototype.getBorderFigure = function () {
-        return this.borderFigure;
-    };
-    Scene.prototype.getWrapFigure = function () {
-        return this.wrapFigure;
-    };
-    Scene.prototype.getPuzzle = function (cell, row) {
-        for (var _i = 0, _a = [this.borderFigure, this.wrapFigure]; _i < _a.length; _i++) {
-            var figure = _a[_i];
-            for (var _b = 0, _c = figure.getPuzzles(); _b < _c.length; _b++) {
-                var puzzle = _c[_b];
-                if (((puzzle.getCell()) === cell)
-                    && ((puzzle.getRow()) === row)) {
-                    return puzzle;
-                }
-            }
-        }
-        return null;
-    };
-    Scene.prototype.generatePuzzles = function (count, type) {
-        var arr = [];
-        for (var i = 0; i < count; i++) {
-            arr.push(new type());
-        }
-        return arr;
-    };
-    Scene.prototype.render = function () {
-        for (var _i = 0, _a = [this.interactiveFigure, this.borderFigure, this.wrapFigure]; _i < _a.length; _i++) {
-            var figure = _a[_i];
-            figure.render();
-        }
-    };
-    return Scene;
-}());
-///<reference path="scene.ts"/>
-var config = {
-    puzzleSize: 20,
-    rows: 22,
-    cols: 12,
-    scene: null
-};
-var BorderFigure = /** @class */ (function (_super) {
-    __extends(BorderFigure, _super);
-    function BorderFigure() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    BorderFigure.prototype.initShape = function () {
-        var rows = config.rows;
-        var cols = config.cols;
-        var shape = [];
-        for (var r = 0; r < rows; r++) {
-            var row = [];
-            for (var c = 0; c < cols; c++) {
-                var v = 0;
-                if (r === 0 || r === (rows - 1) || c === 0 || c === (cols - 1)) {
-                    v = 1;
-                }
-                row.push(v);
-            }
-            shape.push(row);
-        }
-        return shape;
-    };
-    BorderFigure.prototype.impact = function (figure) {
-        config.scene.getWrapFigure().impact(figure);
-    };
-    return BorderFigure;
-}(Figure));
 var WrapFigure = /** @class */ (function (_super) {
     __extends(WrapFigure, _super);
     function WrapFigure() {
@@ -504,8 +438,8 @@ var WrapFigure = /** @class */ (function (_super) {
         return _this;
     }
     WrapFigure.prototype.initShape = function () {
-        var rows = config.rows - 2;
-        var cols = config.cols - 2;
+        var rows = this.getScene().rows - 2;
+        var cols = this.getScene().cols - 2;
         var shape = [];
         for (var r = 0; r < rows; r++) {
             var row = [];
@@ -528,8 +462,8 @@ var WrapFigure = /** @class */ (function (_super) {
                 }
             }
         }
-        var rows = config.rows - 2;
-        var cols = config.cols - 2;
+        var rows = this.getScene().rows - 2;
+        var cols = this.getScene().cols - 2;
         var newShape = [];
         for (var r = 0; r < rows; r++) {
             if ((shape.length - fillRows.length) > r) {
@@ -581,13 +515,12 @@ var WrapFigure = /** @class */ (function (_super) {
             }
         }
         this.updateShape(shape);
-        config.scene.initInteractiveFigure();
+        this.getScene().initInteractiveFigure();
     };
     return WrapFigure;
 }(Figure));
 var Puzzle = /** @class */ (function () {
     function Puzzle() {
-        this.color = "#fbcf9d";
         this.x = null;
         this.y = null;
         this.futureX = null;
@@ -610,9 +543,6 @@ var Puzzle = /** @class */ (function () {
     Puzzle.prototype.setFigure = function (figure) {
         this.figure = figure;
     };
-    Puzzle.prototype.setCtx = function (ctx) {
-        this.ctx = ctx;
-    };
     Puzzle.prototype.remove = function () {
         var shape = this.figure.getShape();
         var x;
@@ -634,12 +564,13 @@ var Puzzle = /** @class */ (function () {
     Puzzle.prototype.setPosition = function (x, y) {
         this.cell = x;
         this.row = y;
+        console.log(x, y);
     };
     Puzzle.prototype.render = function () {
-        var width = config.puzzleSize - 1;
-        var height = config.puzzleSize - 1;
-        var x = this.cell * config.puzzleSize;
-        var y = this.row * config.puzzleSize;
+        var width = this.figure.getScene().puzzleSize - 1;
+        var height = this.figure.getScene().puzzleSize - 1;
+        var x = this.cell * this.figure.getScene().puzzleSize;
+        var y = this.row * this.figure.getScene().puzzleSize;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
             this.y = y;
@@ -673,21 +604,33 @@ var Puzzle = /** @class */ (function () {
                 this.y = this.futureY;
             }
         }
+        var app = this.figure.getScene().getApp();
         var r = 2;
-        if (width < 2 * r)
-            r = width / 2;
-        if (height < 2 * r)
-            r = height / 2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.x + r, this.y);
-        this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
-        this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
-        this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
-        this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
-        this.ctx.fillStyle = this.color;
-        this.ctx.fill();
-        this.ctx.closePath();
-        return this.ctx;
+        // if (width < 2 * r) r = width / 2;
+        // if (height < 2 * r) r = height / 2;
+        // this.ctx.beginPath();
+        // this.ctx.moveTo(this.x + r, this.y);
+        // this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
+        // this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
+        // this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
+        // this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
+        // this.ctx.fillStyle = this.color;
+        // this.ctx.fill();
+        // this.ctx.closePath();
+        // return this.ctx;
+        var graphics = new PIXI.Graphics();
+        // graphics.lineStyle(2, 0xFF00FF, 1);
+        // graphics.beginFill(0xFF3300);
+        // graphics.lineStyle(10, 0xffd900, 1);
+        // graphics.beginFill(0xfbcf9d, 0.25);
+        // graphics.drawRoundedRect(this.x, this.y, width, height, r);
+        graphics.lineStyle(0);
+        graphics.beginFill(0xFFFF0B, 0.5);
+        graphics.drawCircle(470, 200, 100);
+        graphics.endFill();
+        // graphics.endFill();
+        app.stage.addChild(graphics);
+        // console.log('ololo')
     };
     return Puzzle;
 }());

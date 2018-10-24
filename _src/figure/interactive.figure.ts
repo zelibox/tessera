@@ -1,15 +1,9 @@
 ///<reference path="basic.figure.ts"/>
 abstract class InteractiveFigure extends Figure {
+    protected row = 1;
+    protected cell = Math.floor((config.cols / 2) - (this.getShape()[0].length / 2));
     private renderStartDate: Date = null;
-
-
-    getCell(): number {
-        return Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2));;
-    }
-
-    getRow(): number {
-        return 1;
-    }
+    private tickCount: number = 0;
 
     render(): void {
         if (!this.renderStartDate) {
@@ -21,7 +15,6 @@ abstract class InteractiveFigure extends Figure {
         }
         super.render();
     }
-
     rotate(side: 'left' | 'right') {
         const n = this.getShape().length - 1;
         let shape = this.getShape().map((row, i) => {
@@ -39,12 +32,12 @@ abstract class InteractiveFigure extends Figure {
         }
 
         let x;
-        let y = this.getRow();
+        let y = this.row;
         for (let row of shape) {
-            x = this.getCell();
+            x = this.cell;
             for (let puzzle of row) {
                 if (typeof puzzle !== "number") {
-                    let barrier = this.getScene().getPuzzle(x, y);
+                    let barrier = config.scene.getPuzzle(x, y);
                     if (barrier && barrier.getFigure() !== this) {
                         return;
                     }
@@ -77,23 +70,23 @@ abstract class InteractiveFigure extends Figure {
         let barrierType = null;
         let barrier;
         labelStop:
-            for (let row of this.getShape()) {
-                x = moveX;
-                for (let puzzle of row) {
-                    if (typeof puzzle !== "number") {
-                        barrier = this.getScene().getPuzzle(x, y);
-                        if (barrier && barrier.getFigure() !== this) {
-                            barrierType = side;
-                            break labelStop;
-                        }
+        for (let row of this.getShape()) {
+            x = moveX;
+            for (let puzzle of row) {
+                if (typeof puzzle !== "number") {
+                    barrier = config.scene.getPuzzle(x, y);
+                    if (barrier && barrier.getFigure() !== this) {
+                        barrierType = side;
+                        break labelStop;
                     }
-                    x += 1;
                 }
-                y += 1;
+                x += 1;
             }
+            y += 1;
+        }
 
         if (barrierType) {
-            if (barrierType === 'down') {
+            if (barrierType ==='down') {
                 barrier.getFigure().impact(this);
             }
             return;

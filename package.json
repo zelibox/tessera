@@ -19,6 +19,7 @@
         "jquery-touchswipe": "^1.6.19"
     },
     "devDependencies": {
+        "@types/pixi.js": "^4.8.2",
         "browser-sync": "^2.18.13",
         "browserify": "^14.4.0",
         "css-loader": "^0.28.5",
@@ -44,6 +45,7 @@
         "gulp-uglifyjs": "^0.6.2",
         "gulp-util": "^3.0.8",
         "gulp-watch": "^4.3.11",
+        "pixi.js": "^4.8.2",
         "typescript": "^2.5.3"
     }
 }

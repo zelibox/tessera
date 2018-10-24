@@ -1,14 +1,21 @@
-///<reference path="figure/interactive.figure.ts"/>
-///<reference path="figure/basic.figure.ts"/>
 class Scene {
+    public puzzleSize: 20;
+    public rows: 22;
+    public cols: 12;
     private interactiveFigure: InteractiveFigure;
     private borderFigure: BorderFigure;
     private wrapFigure: WrapFigure;
 
-    constructor(protected ctx: CanvasRenderingContext2D) {
+    constructor(private app: PIXI.Application) {
+        console.log(this.app)
+
         this.initInteractiveFigure();
         this.initBorderFigure();
-        this.wrapFigure = new WrapFigure(ctx);
+        this.wrapFigure = new WrapFigure(this);
+    }
+
+    getApp(): PIXI.Application {
+        return this.app;
     }
 
     initInteractiveFigure() {
@@ -23,14 +30,14 @@ class Scene {
             InteractiveFigureL,
             InteractiveFigureDot,
         ];
-        this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this.ctx);
+        this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
         this.interactiveFigure.insertPuzzles(
             this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle)
         );
     }
 
     private initBorderFigure() {
-        this.borderFigure = new BorderFigure(this.ctx);
+        this.borderFigure = new BorderFigure(this);
         this.borderFigure.insertPuzzles(
             this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle)
         );

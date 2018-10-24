@@ -2,8 +2,8 @@ class WrapFigure extends Figure {
     protected cell = 1;
     protected row = 1;
     initShape(): number[][] {
-        let rows = this.getScene().rows - 2;
-        let cols = this.getScene().cols - 2;
+        let rows = config.rows - 2;
+        let cols = config.cols - 2;
         let shape = [];
         for (let r = 0; r < rows; r++) {
             let row = [];
@@ -27,8 +27,8 @@ class WrapFigure extends Figure {
             }
         }
 
-        let rows = this.getScene().rows - 2;
-        let cols = this.getScene().cols - 2;
+        let rows = config.rows - 2;
+        let cols = config.cols - 2;
         let newShape = [];
         for (let r = 0; r < rows; r++) {
             if ((shape.length - fillRows.length) > r) {
@@ -82,6 +82,6 @@ class WrapFigure extends Figure {
         this.updateShape(shape);
 
 
-        this.getScene().initInteractiveFigure();
+        config.scene.initInteractiveFigure();
     }
 }
