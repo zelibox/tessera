@@ -21,8 +21,14 @@ $(function () {
         scene.puzzleSize = puzzleSize;
         app.renderer.resize(window.innerWidth, window.innerHeight);
     }
-
     resize();
+
+    app.ticker.add(function () {
+        scene.render();
+    });
+
+
+    // controller
 
     $(app.view).click(function (e) {
         if (e.offsetX < (scene.puzzleSize * scene.cols / 2)) {
@@ -68,7 +74,13 @@ $(function () {
         }
     });
 
-    app.ticker.add(function () {
-        scene.render();
-    });
+    function requestFullScreen() {
+        let element = document.body;
+        // Supports most browsers and their versions.
+        var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+
+        if (requestMethod) { // Native full screen.
+            requestMethod.call(element);
+        }
+    }
 });
