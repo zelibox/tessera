@@ -24,7 +24,7 @@ abstract class InteractiveFigure extends Figure {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
         }
-        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 250) {
+        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 500) {
             this.renderStartDate = new Date();
             this.move("down")
         }
@@ -103,6 +103,9 @@ abstract class InteractiveFigure extends Figure {
         if (barrierType) {
             if (barrierType === 'down') {
                 barrier.getFigure().impact(this);
+                if (this.getRow() === 1) {
+                    this.scene.getWrapFigure().getPuzzles().forEach(p => p.remove());
+                }
             }
             return false;
         } else {
@@ -188,6 +191,60 @@ class InteractiveFigureDot extends InteractiveFigure {
     initShape(): number[][] {
         return [
             [1]
+        ];
+    }
+}
+
+class InteractiveFigureISmall extends InteractiveFigure {
+    initShape(): number[][] {
+        return [
+            [1, 0],
+            [1, 0],
+        ];
+    }
+}
+
+class InteractiveFigureIMiddle extends InteractiveFigure {
+    initShape(): number[][] {
+        return [
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+        ];
+    }
+}
+
+class InteractiveFigureIOBig extends InteractiveFigure {
+    initShape(): number[][] {
+        return [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ];
+    }
+}
+class InteractiveFigureILSmall extends InteractiveFigure {
+    initShape(): number[][] {
+        return [
+            [1, 0],
+            [1, 1],
+        ];
+    }
+}
+class InteractiveFigureIJSmall extends InteractiveFigure {
+    initShape(): number[][] {
+        return [
+            [0, 1],
+            [1, 1],
+        ];
+    }
+}
+class InteractiveFigureHole extends InteractiveFigure {
+    initShape(): number[][] {
+        return [
+            [0, 1, 0],
+            [1, 0, 1],
+            [0, 1, 0],
         ];
     }
 }

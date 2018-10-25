@@ -13,49 +13,73 @@ $(function () {
         autoResize: true,
         resolution: devicePixelRatio,
         transparent: true,
-        antialias: true
+        antialias: true,
     });
     app.stage.interactive = true;
     var scene = new Scene(app);
-    document.body.appendChild(app.view);
+    $('.wrap').append(app.view);
     window.addEventListener('resize', resize);
     function resize() {
         var puzzleSize = window.innerWidth / scene.cols;
-        if ((puzzleSize * scene.rows) > window.innerHeight) {
-            puzzleSize = window.innerHeight / scene.rows;
+        var toolbarHeight = $('.toolbar').height();
+        console.log(toolbarHeight);
+        if ((puzzleSize * scene.rows) > (window.innerHeight - toolbarHeight)) {
+            puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
         }
         scene.puzzleSize = puzzleSize;
-        app.renderer.resize(window.innerWidth, window.innerHeight);
+        app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
     }
     resize();
     app.ticker.add(function () {
         scene.render();
     });
     // controller
-    $(app.view).click(function (e) {
-        if (e.offsetX < (scene.puzzleSize * scene.cols / 2)) {
-            scene.getInteractiveFigure().move('left');
-        }
-        else {
-            scene.getInteractiveFigure().move('right');
-        }
-    });
+    var startX = 0;
     $(app.view).swipe({
-        //Generic swipe handler for all directions
+        swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+            // console.log({
+            //     event: event,
+            //     phase: phase,
+            //     direction: direction,
+            //     distance: distance,
+            //     duration: duration,
+            //     fingers: fingers,
+            //     fingerData: fingerData,
+            //     currentDirection: currentDirection
+            // });
+            if (phase === 'start') {
+                if (event.pageX) {
+                    startX = event.pageX;
+                }
+                else {
+                    startX = event.touches[0].pageX;
+                }
+            }
+            if (phase === 'cancel' && distance == 0) {
+                if (startX > (window.innerWidth / 2)) {
+                    scene.getInteractiveFigure().move('right');
+                }
+                else {
+                    scene.getInteractiveFigure().move('left');
+                }
+            }
+        },
         swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
-            if (direction == 'left') { // left
-                while (scene.getInteractiveFigure().move('left')) {
+            if (duration < 300) {
+                if (direction == 'left') { // left
+                    while (scene.getInteractiveFigure().move('left')) {
+                    }
                 }
-            }
-            else if (direction == 'right') { // right
-                while (scene.getInteractiveFigure().move('right')) {
+                else if (direction == 'right') { // right
+                    while (scene.getInteractiveFigure().move('right')) {
+                    }
                 }
-            }
-            if (direction == 'up') { // up
-                scene.getInteractiveFigure().rotate('right');
-            }
-            else if (direction == 'down') { // down
-                while (scene.getInteractiveFigure().move('down')) {
+                if (direction == 'up') { // up
+                    scene.getInteractiveFigure().rotate('right');
+                }
+                else if (direction == 'down') { // down
+                    while (scene.getInteractiveFigure().move('down')) {
+                    }
                 }
             }
         }
@@ -74,14 +98,41 @@ $(function () {
             scene.getInteractiveFigure().move('down');
         }
     });
-    function requestFullScreen() {
-        var element = document.body;
-        // Supports most browsers and their versions.
-        var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
-        if (requestMethod) { // Native full screen.
-            requestMethod.call(element);
+    var fullScreenToggleElement = $('.full-screen-toggle');
+    fullScreenToggleElement.on('click', function () {
+        /* Get the documentElement (<html>) to display the page in fullscreen */
+        var elem = document.documentElement;
+        if (fullScreenToggleElement.hasClass('active')) {
+            fullScreenToggleElement.removeClass('active');
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            else if (document.mozCancelFullScreen) { /* Firefox */
+                document.mozCancelFullScreen();
+            }
+            else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+                document.webkitExitFullscreen();
+            }
+            else if (document.msExitFullscreen) { /* IE/Edge */
+                document.msExitFullscreen();
+            }
         }
-    }
+        else {
+            $('.full-screen-toggle').addClass('active');
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            }
+            else if (elem.mozRequestFullScreen) { /* Firefox */
+                elem.mozRequestFullScreen();
+            }
+            else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                elem.webkitRequestFullscreen();
+            }
+            else if (elem.msRequestFullscreen) { /* IE/Edge */
+                elem.msRequestFullscreen();
+            }
+        }
+    });
 });
 var Scene = /** @class */ (function () {
     function Scene(app) {
@@ -107,6 +158,12 @@ var Scene = /** @class */ (function () {
             InteractiveFigureJ,
             InteractiveFigureL,
             InteractiveFigureDot,
+            InteractiveFigureISmall,
+            InteractiveFigureIOBig,
+            InteractiveFigureILSmall,
+            InteractiveFigureIJSmall,
+            InteractiveFigureHole,
+            InteractiveFigureIMiddle,
         ];
         this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
         this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
@@ -152,6 +209,124 @@ var Scene = /** @class */ (function () {
     };
     return Scene;
 }());
+var Puzzle = /** @class */ (function () {
+    function Puzzle() {
+        this.color = 0x000000;
+        this.x = null;
+        this.y = null;
+        this.futureX = null;
+        this.futureY = null;
+        this.stepX = null;
+        this.stepY = null;
+        this.animationTime = 300;
+        this.cell = 5; //  todo!!!!!
+        this.row = 5; //  todo!!!!!
+    }
+    Puzzle.prototype.getCell = function () {
+        return this.cell;
+    };
+    Puzzle.prototype.getRow = function () {
+        return this.row;
+    };
+    Puzzle.prototype.getFigure = function () {
+        return this.figure;
+    };
+    Puzzle.prototype.setFigure = function (figure) {
+        this.figure = figure;
+    };
+    Puzzle.prototype.remove = function () {
+        var shape = this.figure.getShape();
+        var x;
+        var y = 0;
+        for (var _i = 0, shape_1 = shape; _i < shape_1.length; _i++) {
+            var row = shape_1[_i];
+            x = 0;
+            for (var _a = 0, row_1 = row; _a < row_1.length; _a++) {
+                var cell = row_1[_a];
+                if (cell === this) {
+                    shape[y][x] = 0;
+                }
+                x++;
+            }
+            y++;
+        }
+        this.getFigure().getScene().getApp().stage.removeChild(this.graphics);
+        this.figure.updateShape(shape);
+    };
+    Puzzle.prototype.setPosition = function (x, y) {
+        this.cell = x;
+        this.row = y;
+    };
+    Puzzle.prototype.render = function () {
+        var width = this.figure.getScene().puzzleSize - 1;
+        var height = this.figure.getScene().puzzleSize - 1;
+        var x = this.cell * this.figure.getScene().puzzleSize;
+        var y = this.row * this.figure.getScene().puzzleSize;
+        if ((this.x === null) || (this.y === null)) {
+            this.x = x;
+            this.y = y;
+            this.futureX = x;
+            this.futureY = y;
+            this.renderStartDate = new Date();
+        }
+        else {
+            if ((x !== this.futureX) || (y !== this.futureY)) {
+                this.futureX = x;
+                this.futureY = y;
+                this.renderStartDate = new Date();
+            }
+            var diff = new Date().getTime() - this.renderStartDate.getTime();
+            if (this.x > this.futureX) {
+                this.stepX = ((this.x - this.futureX) * (diff / this.animationTime)) * -1;
+            }
+            else {
+                this.stepX = ((this.futureX - this.x) * (diff / this.animationTime));
+            }
+            if (this.y > this.futureY) {
+                this.stepY = ((this.y - this.futureY) * (diff / this.animationTime)) * -1;
+            }
+            else {
+                this.stepY = ((this.futureY - this.y) * (diff / this.animationTime));
+            }
+            this.x += this.stepX;
+            this.y += this.stepY;
+            if (diff >= this.animationTime) {
+                this.x = this.futureX;
+                this.y = this.futureY;
+            }
+        }
+        var app = this.figure.getScene().getApp();
+        if (!this.graphics) {
+            this.graphics = new PIXI.Graphics();
+            this.graphics.lineStyle(0);
+            this.graphics.beginFill(this.color, 1);
+            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+            this.graphics.endFill();
+            app.stage.addChild(this.graphics);
+        }
+        this.graphics.position.x = this.x;
+        this.graphics.position.y = this.y;
+    };
+    return Puzzle;
+}());
+var SimplePuzzle = /** @class */ (function (_super) {
+    __extends(SimplePuzzle, _super);
+    function SimplePuzzle() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = 0xe8eaa1;
+        return _this;
+    }
+    return SimplePuzzle;
+}(Puzzle));
+var BorderPuzzle = /** @class */ (function (_super) {
+    __extends(BorderPuzzle, _super);
+    function BorderPuzzle() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = 0x605a56;
+        return _this;
+    }
+    return BorderPuzzle;
+}(Puzzle));
 var Figure = /** @class */ (function () {
     function Figure(scene) {
         this.scene = scene;
@@ -166,8 +341,8 @@ var Figure = /** @class */ (function () {
         var puzzles = [];
         for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
-            for (var _b = 0, row_1 = row; _b < row_1.length; _b++) {
-                var puzzle = row_1[_b];
+            for (var _b = 0, row_2 = row; _b < row_2.length; _b++) {
+                var puzzle = row_2[_b];
                 if (typeof puzzle !== "number") {
                     puzzles.push(puzzle);
                 }
@@ -188,8 +363,8 @@ var Figure = /** @class */ (function () {
         for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
             x = this.getCell();
-            for (var _b = 0, row_2 = row; _b < row_2.length; _b++) {
-                var puzzle = row_2[_b];
+            for (var _b = 0, row_3 = row; _b < row_3.length; _b++) {
+                var puzzle = row_3[_b];
                 if (typeof puzzle !== "number") {
                     puzzle.setPosition(x, y);
                 }
@@ -202,8 +377,8 @@ var Figure = /** @class */ (function () {
         var count = 0;
         for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
-            for (var _b = 0, row_3 = row; _b < row_3.length; _b++) {
-                var place = row_3[_b];
+            for (var _b = 0, row_4 = row; _b < row_4.length; _b++) {
+                var place = row_4[_b];
                 if (place !== 0) {
                     count++;
                 }
@@ -217,8 +392,8 @@ var Figure = /** @class */ (function () {
         for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
             var rowShape = [];
-            for (var _b = 0, row_4 = row; _b < row_4.length; _b++) {
-                var place = row_4[_b];
+            for (var _b = 0, row_5 = row; _b < row_5.length; _b++) {
+                var place = row_5[_b];
                 if (place !== 0) {
                     rowShape.push(puzzles[index]);
                     puzzles[index].setFigure(this);
@@ -299,7 +474,7 @@ var InteractiveFigure = /** @class */ (function (_super) {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
         }
-        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 250) {
+        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 500) {
             this.renderStartDate = new Date();
             this.move("down");
         }
@@ -322,11 +497,11 @@ var InteractiveFigure = /** @class */ (function (_super) {
         }
         var x;
         var y = this.getRow();
-        for (var _i = 0, shape_1 = shape; _i < shape_1.length; _i++) {
-            var row = shape_1[_i];
+        for (var _i = 0, shape_2 = shape; _i < shape_2.length; _i++) {
+            var row = shape_2[_i];
             x = this.getCell();
-            for (var _a = 0, row_5 = row; _a < row_5.length; _a++) {
-                var puzzle = row_5[_a];
+            for (var _a = 0, row_6 = row; _a < row_6.length; _a++) {
+                var puzzle = row_6[_a];
                 if (typeof puzzle !== "number") {
                     var barrier = this.getScene().getPuzzle(x, y);
                     if (barrier && barrier.getFigure() !== this) {
@@ -358,8 +533,8 @@ var InteractiveFigure = /** @class */ (function (_super) {
         labelStop: for (var _i = 0, _a = this.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
             x = moveX;
-            for (var _b = 0, row_6 = row; _b < row_6.length; _b++) {
-                var puzzle = row_6[_b];
+            for (var _b = 0, row_7 = row; _b < row_7.length; _b++) {
+                var puzzle = row_7[_b];
                 if (typeof puzzle !== "number") {
                     barrier = this.getScene().getPuzzle(x, y);
                     if (barrier && barrier.getFigure() !== this) {
@@ -374,6 +549,9 @@ var InteractiveFigure = /** @class */ (function (_super) {
         if (barrierType) {
             if (barrierType === 'down') {
                 barrier.getFigure().impact(this);
+                if (this.getRow() === 1) {
+                    this.scene.getWrapFigure().getPuzzles().forEach(function (p) { return p.remove(); });
+                }
             }
             return false;
         }
@@ -496,6 +674,87 @@ var InteractiveFigureDot = /** @class */ (function (_super) {
     };
     return InteractiveFigureDot;
 }(InteractiveFigure));
+var InteractiveFigureISmall = /** @class */ (function (_super) {
+    __extends(InteractiveFigureISmall, _super);
+    function InteractiveFigureISmall() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InteractiveFigureISmall.prototype.initShape = function () {
+        return [
+            [1, 0],
+            [1, 0],
+        ];
+    };
+    return InteractiveFigureISmall;
+}(InteractiveFigure));
+var InteractiveFigureIMiddle = /** @class */ (function (_super) {
+    __extends(InteractiveFigureIMiddle, _super);
+    function InteractiveFigureIMiddle() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InteractiveFigureIMiddle.prototype.initShape = function () {
+        return [
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+        ];
+    };
+    return InteractiveFigureIMiddle;
+}(InteractiveFigure));
+var InteractiveFigureIOBig = /** @class */ (function (_super) {
+    __extends(InteractiveFigureIOBig, _super);
+    function InteractiveFigureIOBig() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InteractiveFigureIOBig.prototype.initShape = function () {
+        return [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ];
+    };
+    return InteractiveFigureIOBig;
+}(InteractiveFigure));
+var InteractiveFigureILSmall = /** @class */ (function (_super) {
+    __extends(InteractiveFigureILSmall, _super);
+    function InteractiveFigureILSmall() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InteractiveFigureILSmall.prototype.initShape = function () {
+        return [
+            [1, 0],
+            [1, 1],
+        ];
+    };
+    return InteractiveFigureILSmall;
+}(InteractiveFigure));
+var InteractiveFigureIJSmall = /** @class */ (function (_super) {
+    __extends(InteractiveFigureIJSmall, _super);
+    function InteractiveFigureIJSmall() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InteractiveFigureIJSmall.prototype.initShape = function () {
+        return [
+            [0, 1],
+            [1, 1],
+        ];
+    };
+    return InteractiveFigureIJSmall;
+}(InteractiveFigure));
+var InteractiveFigureHole = /** @class */ (function (_super) {
+    __extends(InteractiveFigureHole, _super);
+    function InteractiveFigureHole() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InteractiveFigureHole.prototype.initShape = function () {
+        return [
+            [0, 1, 0],
+            [1, 0, 1],
+            [0, 1, 0],
+        ];
+    };
+    return InteractiveFigureHole;
+}(InteractiveFigure));
 var WrapFigure = /** @class */ (function (_super) {
     __extends(WrapFigure, _super);
     function WrapFigure() {
@@ -522,10 +781,10 @@ var WrapFigure = /** @class */ (function (_super) {
     };
     WrapFigure.prototype.updateShape = function (shape) {
         var fillRows = [];
-        for (var _i = 0, shape_2 = shape; _i < shape_2.length; _i++) {
-            var row = shape_2[_i];
-            for (var _a = 0, row_7 = row; _a < row_7.length; _a++) {
-                var cell = row_7[_a];
+        for (var _i = 0, shape_3 = shape; _i < shape_3.length; _i++) {
+            var row = shape_3[_i];
+            for (var _a = 0, row_8 = row; _a < row_8.length; _a++) {
+                var cell = row_8[_a];
                 if (typeof cell !== "number") {
                     fillRows.push(row);
                     break;
@@ -556,8 +815,8 @@ var WrapFigure = /** @class */ (function (_super) {
         for (var _i = 0, _a = figure.getShape(); _i < _a.length; _i++) {
             var row = _a[_i];
             x = figure.getCell();
-            for (var _b = 0, row_8 = row; _b < row_8.length; _b++) {
-                var puzzle = row_8[_b];
+            for (var _b = 0, row_9 = row; _b < row_9.length; _b++) {
+                var puzzle = row_9[_b];
                 if (typeof puzzle !== "number") {
                     puzzle.setFigure(this);
                     shape[y - 1][x - 1] = puzzle;
@@ -566,17 +825,17 @@ var WrapFigure = /** @class */ (function (_super) {
             }
             y += 1;
         }
-        for (var _c = 0, shape_3 = shape; _c < shape_3.length; _c++) {
-            var row = shape_3[_c];
+        for (var _c = 0, shape_4 = shape; _c < shape_4.length; _c++) {
+            var row = shape_4[_c];
             var countFill = 0;
-            for (var _d = 0, row_9 = row; _d < row_9.length; _d++) {
-                var cell = row_9[_d];
+            for (var _d = 0, row_10 = row; _d < row_10.length; _d++) {
+                var cell = row_10[_d];
                 if (typeof cell !== "number") {
                     countFill++;
                 }
                 if (countFill === row.length) {
-                    for (var _e = 0, row_10 = row; _e < row_10.length; _e++) {
-                        var cell_1 = row_10[_e];
+                    for (var _e = 0, row_11 = row; _e < row_11.length; _e++) {
+                        var cell_1 = row_11[_e];
                         if (typeof cell_1 !== "number") {
                             cell_1.remove();
                         }
@@ -589,123 +848,5 @@ var WrapFigure = /** @class */ (function (_super) {
     };
     return WrapFigure;
 }(Figure));
-var Puzzle = /** @class */ (function () {
-    function Puzzle() {
-        this.color = 0x000000;
-        this.x = null;
-        this.y = null;
-        this.futureX = null;
-        this.futureY = null;
-        this.stepX = null;
-        this.stepY = null;
-        this.animationTime = 300;
-        this.cell = 5; //  todo!!!!!
-        this.row = 5; //  todo!!!!!
-    }
-    Puzzle.prototype.getCell = function () {
-        return this.cell;
-    };
-    Puzzle.prototype.getRow = function () {
-        return this.row;
-    };
-    Puzzle.prototype.getFigure = function () {
-        return this.figure;
-    };
-    Puzzle.prototype.setFigure = function (figure) {
-        this.figure = figure;
-    };
-    Puzzle.prototype.remove = function () {
-        var shape = this.figure.getShape();
-        var x;
-        var y = 0;
-        for (var _i = 0, shape_4 = shape; _i < shape_4.length; _i++) {
-            var row = shape_4[_i];
-            x = 0;
-            for (var _a = 0, row_11 = row; _a < row_11.length; _a++) {
-                var cell = row_11[_a];
-                if (cell === this) {
-                    shape[y][x] = 0;
-                }
-                x++;
-            }
-            y++;
-        }
-        this.getFigure().getScene().getApp().stage.removeChild(this.graphics);
-        this.figure.updateShape(shape);
-    };
-    Puzzle.prototype.setPosition = function (x, y) {
-        this.cell = x;
-        this.row = y;
-    };
-    Puzzle.prototype.render = function () {
-        var width = this.figure.getScene().puzzleSize - 1;
-        var height = this.figure.getScene().puzzleSize - 1;
-        var x = this.cell * this.figure.getScene().puzzleSize;
-        var y = this.row * this.figure.getScene().puzzleSize;
-        if ((this.x === null) || (this.y === null)) {
-            this.x = x;
-            this.y = y;
-            this.futureX = x;
-            this.futureY = y;
-            this.renderStartDate = new Date();
-        }
-        else {
-            if ((x !== this.futureX) || (y !== this.futureY)) {
-                this.futureX = x;
-                this.futureY = y;
-                this.renderStartDate = new Date();
-            }
-            var diff = new Date().getTime() - this.renderStartDate.getTime();
-            if (this.x > this.futureX) {
-                this.stepX = ((this.x - this.futureX) * (diff / this.animationTime)) * -1;
-            }
-            else {
-                this.stepX = ((this.futureX - this.x) * (diff / this.animationTime));
-            }
-            if (this.y > this.futureY) {
-                this.stepY = ((this.y - this.futureY) * (diff / this.animationTime)) * -1;
-            }
-            else {
-                this.stepY = ((this.futureY - this.y) * (diff / this.animationTime));
-            }
-            this.x += this.stepX;
-            this.y += this.stepY;
-            if (diff >= this.animationTime) {
-                this.x = this.futureX;
-                this.y = this.futureY;
-            }
-        }
-        var app = this.figure.getScene().getApp();
-        if (!this.graphics) {
-            this.graphics = new PIXI.Graphics();
-            this.graphics.lineStyle(0);
-            this.graphics.beginFill(this.color, 1);
-            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-            this.graphics.endFill();
-            app.stage.addChild(this.graphics);
-        }
-        this.graphics.position.x = this.x;
-        this.graphics.position.y = this.y;
-    };
-    return Puzzle;
-}());
-var SimplePuzzle = /** @class */ (function (_super) {
-    __extends(SimplePuzzle, _super);
-    function SimplePuzzle() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = 0xe8eaa1;
-        return _this;
-    }
-    return SimplePuzzle;
-}(Puzzle));
-var BorderPuzzle = /** @class */ (function (_super) {
-    __extends(BorderPuzzle, _super);
-    function BorderPuzzle() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = 0x605a56;
-        return _this;
-    }
-    return BorderPuzzle;
-}(Puzzle));
 
 //# sourceMappingURL=assets_typescript.js.map

@@ -5,4 +5,13 @@ body {
   overflow: hidden;
   overscroll-behavior: contain; }
 
+.toolbar {
+  height: 50px; }
+
+.wrap {
+  text-align: center; }
+
+:-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen, :fullscreen {
+  background-color: #373331; }
+
 /*# sourceMappingURL=assets_scss.css.map */

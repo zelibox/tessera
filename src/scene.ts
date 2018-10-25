@@ -27,6 +27,12 @@ class Scene {
             InteractiveFigureJ,
             InteractiveFigureL,
             InteractiveFigureDot,
+            InteractiveFigureISmall,
+            InteractiveFigureIOBig,
+            InteractiveFigureILSmall,
+            InteractiveFigureIJSmall,
+            InteractiveFigureHole,
+            InteractiveFigureIMiddle,
         ];
         this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
         this.interactiveFigure.insertPuzzles(
