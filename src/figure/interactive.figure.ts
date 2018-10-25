@@ -1,21 +1,30 @@
 ///<reference path="basic.figure.ts"/>
 abstract class InteractiveFigure extends Figure {
     private renderStartDate: Date = null;
-
+    private cell = null;
+    private row = null;
 
     getCell(): number {
-        return Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2));;
+        if (this.cell === null) {
+            this.cell = Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2))
+        }
+
+        return this.cell;
     }
 
     getRow(): number {
-        return 1;
+        if (this.row === null) {
+            this.row = 1;
+        }
+
+        return this.row;
     }
 
     render(): void {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
         }
-        if ((new Date() - this.renderStartDate) >= 250) {
+        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 250) {
             this.renderStartDate = new Date();
             this.move("down")
         }
@@ -58,19 +67,18 @@ abstract class InteractiveFigure extends Figure {
         this.updateShape(shape);
     }
 
-    move(side: 'left' | 'right' | 'down') {
-        let moveX = this.cell;
-        let moveY = this.row;
+    move(side: 'left' | 'right' | 'down'):boolean {
+        let moveX = this.getCell();
+        let moveY = this.getRow();
         if (side === 'right') {
-            moveX = this.cell + 1;
+            moveX = this.getCell() + 1;
         }
         if (side === 'left') {
-            moveX = this.cell - 1;
+            moveX = this.getCell() - 1;
         }
         if (side === 'down') {
-            moveY = this.row + 1;
+            moveY = this.getRow() + 1;
         }
-        this.updateShape(this.getShape());
 
         let x;
         let y = moveY;
@@ -96,10 +104,12 @@ abstract class InteractiveFigure extends Figure {
             if (barrierType === 'down') {
                 barrier.getFigure().impact(this);
             }
-            return;
+            return false;
         } else {
             this.cell = moveX;
             this.row = moveY;
+            this.updateShape(this.getShape());
+            return true;
         }
     }
 }

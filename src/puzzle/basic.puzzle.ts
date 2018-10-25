@@ -1,5 +1,5 @@
 interface IPuzzle {
-    render(cell, row)
+    render()
 
     getCell(): number;
 
@@ -15,17 +15,19 @@ interface IPuzzle {
 }
 
 abstract class Puzzle implements IPuzzle {
+    public color = 0x000000;
     public x = null;
     public y = null;
     public futureX = null;
     public futureY = null;
     public stepX = null;
     public stepY = null;
-    public animationTime = 250;
+    public animationTime = 300;
     private cell: number = 5; //  todo!!!!!
     private row: number = 5; //  todo!!!!!
     private figure: IFigure;
     private renderStartDate: Date;
+    private graphics: PIXI.Graphics;
 
     getCell() {
         return this.cell;
@@ -57,7 +59,7 @@ abstract class Puzzle implements IPuzzle {
             }
             y++;
         }
-
+        this.getFigure().getScene().getApp().stage.removeChild(this.graphics);
         this.figure.updateShape(shape);
     }
 
@@ -65,7 +67,6 @@ abstract class Puzzle implements IPuzzle {
     setPosition(x: number, y: number): void {
         this.cell = x;
         this.row = y;
-        console.log(x, y)
     }
 
     render() {
@@ -86,7 +87,7 @@ abstract class Puzzle implements IPuzzle {
                 this.futureY = y;
                 this.renderStartDate = new Date();
             }
-            let diff = new Date() - this.renderStartDate;
+            let diff = new Date().getTime() - this.renderStartDate.getTime();
 
             if (this.x > this.futureX) {
                 this.stepX = ((this.x - this.futureX) * (diff / this.animationTime)) * -1;
@@ -109,42 +110,24 @@ abstract class Puzzle implements IPuzzle {
         }
 
         let app = this.figure.getScene().getApp();
-        let r = 2;
-
-        // if (width < 2 * r) r = width / 2;
-        // if (height < 2 * r) r = height / 2;
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(this.x + r, this.y);
-        // this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
-        // this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
-        // this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
-        // this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
-        // this.ctx.fillStyle = this.color;
-        // this.ctx.fill();
-        // this.ctx.closePath();
-        // return this.ctx;
-        let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(2, 0xFF00FF, 1);
-        // graphics.beginFill(0xFF3300);
-        // graphics.lineStyle(10, 0xffd900, 1);
-        // graphics.beginFill(0xfbcf9d, 0.25);
-        // graphics.drawRoundedRect(this.x, this.y, width, height, r);
-        graphics.lineStyle(0);
-        graphics.beginFill(0xFFFF0B, 0.5);
-        graphics.drawCircle(470, 200,100);
-        graphics.endFill();
-        // graphics.endFill();
-        app.stage.addChild(graphics);
-
-        // console.log('ololo')
+        if (!this.graphics) {
+            this.graphics = new PIXI.Graphics();
+            this.graphics.lineStyle(0);
+            this.graphics.beginFill(this.color, 1);
+            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+            this.graphics.endFill();
+            app.stage.addChild(this.graphics);
+        }
+        this.graphics.position.x = this.x;
+        this.graphics.position.y = this.y;
     }
 }
 
 
 class SimplePuzzle extends Puzzle {
-
+    color = 0xe8eaa1;
 }
 
 class BorderPuzzle extends Puzzle {
-    color = '#111b44'
+    color = 0x605a56;
 }

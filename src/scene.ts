@@ -1,14 +1,12 @@
 class Scene {
-    public puzzleSize: 20;
-    public rows: 22;
-    public cols: 12;
+    public puzzleSize = 20;
+    public rows = 22;
+    public cols = 12;
     private interactiveFigure: InteractiveFigure;
     private borderFigure: BorderFigure;
     private wrapFigure: WrapFigure;
 
     constructor(private app: PIXI.Application) {
-        console.log(this.app)
-
         this.initInteractiveFigure();
         this.initBorderFigure();
         this.wrapFigure = new WrapFigure(this);

@@ -11,16 +11,89 @@ var __extends = (this && this.__extends) || (function () {
 $(function () {
     var app = new PIXI.Application({
         autoResize: true,
-        resolution: devicePixelRatio
+        resolution: devicePixelRatio,
+        transparent: true,
+        antialias: true
     });
     app.stage.interactive = true;
     var scene = new Scene(app);
     document.body.appendChild(app.view);
     window.addEventListener('resize', resize);
     function resize() {
+        var puzzleSize = window.innerWidth / scene.cols;
+        if ((puzzleSize * scene.rows) > window.innerHeight) {
+            puzzleSize = window.innerHeight / scene.rows;
+        }
+        scene.puzzleSize = puzzleSize;
         app.renderer.resize(window.innerWidth, window.innerHeight);
     }
     resize();
+    $(app.view).swipe({
+        //Generic swipe handler for all directions
+        swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
+            if (direction == 'left') { // left
+                while (scene.getInteractiveFigure().move('left')) {
+                }
+                console.log('swipe left');
+            }
+            else if (direction == 'right') { // right
+                while (scene.getInteractiveFigure().move('right')) {
+                }
+            }
+            if (direction == 'up') { // up
+                scene.getInteractiveFigure().rotate('right');
+            }
+            else if (direction == 'down') { // down
+                while (scene.getInteractiveFigure().move('down')) {
+                }
+            }
+        },
+        swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+            var str = "<h4>Swipe Phase : " + phase + "<br/>";
+            str += "Current direction: " + currentDirection + "<br/>";
+            str += "Direction from inital touch: " + direction + "<br/>";
+            str += "Distance from inital touch: " + distance + "<br/>";
+            str += "Duration of swipe: " + duration + "<br/>";
+            str += "Fingers used: " + fingers + "<br/></h4>";
+            // console.log(event, phase, direction, distance, duration, fingers, fingerData, currentDirection);
+            // if (distance < lastD) {
+            //     lastD = distance;
+            // }
+            // if ()
+            if (duration > 500) {
+                if (currentDirection == 'left') { // left
+                    scene.getInteractiveFigure().move(currentDirection);
+                    // lastRight = 0;
+                    // if ((distance - lastLeft) > 30 || (distance < lastLeft)) {
+                    //     lastLeft = distance;
+                    //     config.scene.getInteractiveFigure().move('left')
+                    // }
+                }
+                else if (currentDirection == 'right') { // right
+                    scene.getInteractiveFigure().move(currentDirection);
+                    // lastLeft = 0;
+                    // if ((distance - lastRight) > 30 || (distance < lastRight)) {
+                    //     lastRight = distance;
+                    //     config.scene.getInteractiveFigure().move('right')
+                    // }
+                }
+            }
+        }
+    });
+    $("body").on('keydown', function (e) {
+        if (e.keyCode == 37) { // left
+            scene.getInteractiveFigure().move('left');
+        }
+        else if (e.keyCode == 39) { // right
+            scene.getInteractiveFigure().move('right');
+        }
+        else if (e.keyCode == 38) { // up
+            scene.getInteractiveFigure().rotate('right');
+        }
+        else if (e.keyCode == 40) { // down
+            scene.getInteractiveFigure().move('down');
+        }
+    });
     app.ticker.add(function () {
         scene.render();
     });
@@ -28,7 +101,9 @@ $(function () {
 var Scene = /** @class */ (function () {
     function Scene(app) {
         this.app = app;
-        console.log(this.app);
+        this.puzzleSize = 20;
+        this.rows = 22;
+        this.cols = 12;
         this.initInteractiveFigure();
         this.initBorderFigure();
         this.wrapFigure = new WrapFigure(this);
@@ -131,7 +206,6 @@ var Figure = /** @class */ (function () {
             for (var _b = 0, row_2 = row; _b < row_2.length; _b++) {
                 var puzzle = row_2[_b];
                 if (typeof puzzle !== "number") {
-                    console.log(x);
                     puzzle.setPosition(x, y);
                 }
                 x += 1;
@@ -220,20 +294,27 @@ var InteractiveFigure = /** @class */ (function (_super) {
     function InteractiveFigure() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.renderStartDate = null;
+        _this.cell = null;
+        _this.row = null;
         return _this;
     }
     InteractiveFigure.prototype.getCell = function () {
-        return Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2));
-        ;
+        if (this.cell === null) {
+            this.cell = Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2));
+        }
+        return this.cell;
     };
     InteractiveFigure.prototype.getRow = function () {
-        return 1;
+        if (this.row === null) {
+            this.row = 1;
+        }
+        return this.row;
     };
     InteractiveFigure.prototype.render = function () {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
         }
-        if ((new Date() - this.renderStartDate) >= 250) {
+        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 250) {
             this.renderStartDate = new Date();
             this.move("down");
         }
@@ -274,18 +355,17 @@ var InteractiveFigure = /** @class */ (function (_super) {
         this.updateShape(shape);
     };
     InteractiveFigure.prototype.move = function (side) {
-        var moveX = this.cell;
-        var moveY = this.row;
+        var moveX = this.getCell();
+        var moveY = this.getRow();
         if (side === 'right') {
-            moveX = this.cell + 1;
+            moveX = this.getCell() + 1;
         }
         if (side === 'left') {
-            moveX = this.cell - 1;
+            moveX = this.getCell() - 1;
         }
         if (side === 'down') {
-            moveY = this.row + 1;
+            moveY = this.getRow() + 1;
         }
-        this.updateShape(this.getShape());
         var x;
         var y = moveY;
         var barrierType = null;
@@ -310,11 +390,13 @@ var InteractiveFigure = /** @class */ (function (_super) {
             if (barrierType === 'down') {
                 barrier.getFigure().impact(this);
             }
-            return;
+            return false;
         }
         else {
             this.cell = moveX;
             this.row = moveY;
+            this.updateShape(this.getShape());
+            return true;
         }
     };
     return InteractiveFigure;
@@ -432,10 +514,7 @@ var InteractiveFigureDot = /** @class */ (function (_super) {
 var WrapFigure = /** @class */ (function (_super) {
     __extends(WrapFigure, _super);
     function WrapFigure() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.cell = 1;
-        _this.row = 1;
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     WrapFigure.prototype.initShape = function () {
         var rows = this.getScene().rows - 2;
@@ -449,6 +528,12 @@ var WrapFigure = /** @class */ (function (_super) {
             shape.push(row);
         }
         return shape;
+    };
+    WrapFigure.prototype.getCell = function () {
+        return 1;
+    };
+    WrapFigure.prototype.getRow = function () {
+        return 1;
     };
     WrapFigure.prototype.updateShape = function (shape) {
         var fillRows = [];
@@ -521,13 +606,14 @@ var WrapFigure = /** @class */ (function (_super) {
 }(Figure));
 var Puzzle = /** @class */ (function () {
     function Puzzle() {
+        this.color = 0x000000;
         this.x = null;
         this.y = null;
         this.futureX = null;
         this.futureY = null;
         this.stepX = null;
         this.stepY = null;
-        this.animationTime = 250;
+        this.animationTime = 300;
         this.cell = 5; //  todo!!!!!
         this.row = 5; //  todo!!!!!
     }
@@ -559,12 +645,12 @@ var Puzzle = /** @class */ (function () {
             }
             y++;
         }
+        this.getFigure().getScene().getApp().stage.removeChild(this.graphics);
         this.figure.updateShape(shape);
     };
     Puzzle.prototype.setPosition = function (x, y) {
         this.cell = x;
         this.row = y;
-        console.log(x, y);
     };
     Puzzle.prototype.render = function () {
         var width = this.figure.getScene().puzzleSize - 1;
@@ -584,7 +670,7 @@ var Puzzle = /** @class */ (function () {
                 this.futureY = y;
                 this.renderStartDate = new Date();
             }
-            var diff = new Date() - this.renderStartDate;
+            var diff = new Date().getTime() - this.renderStartDate.getTime();
             if (this.x > this.futureX) {
                 this.stepX = ((this.x - this.futureX) * (diff / this.animationTime)) * -1;
             }
@@ -605,39 +691,25 @@ var Puzzle = /** @class */ (function () {
             }
         }
         var app = this.figure.getScene().getApp();
-        var r = 2;
-        // if (width < 2 * r) r = width / 2;
-        // if (height < 2 * r) r = height / 2;
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(this.x + r, this.y);
-        // this.ctx.arcTo(this.x + width, this.y, this.x + width, this.y + height, r);
-        // this.ctx.arcTo(this.x + width, this.y + height, this.x, this.y + height, r);
-        // this.ctx.arcTo(this.x, this.y + height, this.x, this.y, r);
-        // this.ctx.arcTo(this.x, this.y, this.x + width, this.y, r);
-        // this.ctx.fillStyle = this.color;
-        // this.ctx.fill();
-        // this.ctx.closePath();
-        // return this.ctx;
-        var graphics = new PIXI.Graphics();
-        // graphics.lineStyle(2, 0xFF00FF, 1);
-        // graphics.beginFill(0xFF3300);
-        // graphics.lineStyle(10, 0xffd900, 1);
-        // graphics.beginFill(0xfbcf9d, 0.25);
-        // graphics.drawRoundedRect(this.x, this.y, width, height, r);
-        graphics.lineStyle(0);
-        graphics.beginFill(0xFFFF0B, 0.5);
-        graphics.drawCircle(470, 200, 100);
-        graphics.endFill();
-        // graphics.endFill();
-        app.stage.addChild(graphics);
-        // console.log('ololo')
+        if (!this.graphics) {
+            this.graphics = new PIXI.Graphics();
+            this.graphics.lineStyle(0);
+            this.graphics.beginFill(this.color, 1);
+            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+            this.graphics.endFill();
+            app.stage.addChild(this.graphics);
+        }
+        this.graphics.position.x = this.x;
+        this.graphics.position.y = this.y;
     };
     return Puzzle;
 }());
 var SimplePuzzle = /** @class */ (function (_super) {
     __extends(SimplePuzzle, _super);
     function SimplePuzzle() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = 0xe8eaa1;
+        return _this;
     }
     return SimplePuzzle;
 }(Puzzle));
@@ -645,7 +717,7 @@ var BorderPuzzle = /** @class */ (function (_super) {
     __extends(BorderPuzzle, _super);
     function BorderPuzzle() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = '#111b44';
+        _this.color = 0x605a56;
         return _this;
     }
     return BorderPuzzle;

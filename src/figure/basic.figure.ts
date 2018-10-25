@@ -1,7 +1,7 @@
 abstract class Figure implements IFigure {
     private shape: Array<number | IPuzzle>[] = null;
 
-    constructor(private scene: Scene) {
+    constructor(protected scene: Scene) {
     }
 
     getScene(): Scene {
@@ -11,7 +11,7 @@ abstract class Figure implements IFigure {
     impact(figure: IFigure) {
     }
 
-    getPuzzles() {
+    getPuzzles(): IPuzzle[]{
         let puzzles = [];
         for (let row of this.getShape()) {
             for (let puzzle of row) {
@@ -42,7 +42,6 @@ abstract class Figure implements IFigure {
             x = this.getCell();
             for (let puzzle of row) {
                 if (typeof puzzle !== "number") {
-                    console.log(x);
                     puzzle.setPosition(x, y);
                 }
                 x += 1;

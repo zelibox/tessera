@@ -1,6 +1,4 @@
 class WrapFigure extends Figure {
-    protected cell = 1;
-    protected row = 1;
     initShape(): number[][] {
         let rows = this.getScene().rows - 2;
         let cols = this.getScene().cols - 2;
@@ -15,6 +13,13 @@ class WrapFigure extends Figure {
         return shape;
     }
 
+    getCell(): number {
+        return 1;
+    }
+
+    getRow(): number {
+        return 1;
+    }
 
     updateShape(shape: Array<number | IPuzzle>[]): void {
         let fillRows = [];
