@@ -24,7 +24,7 @@ abstract class InteractiveFigure extends Figure {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
         }
-        if ((new Date().getTime() - this.renderStartDate.getTime()) >= 500) {
+        if (((new Date().getTime() - this.renderStartDate.getTime()) >= 500)) {
             this.renderStartDate = new Date();
             this.move("down")
         }
@@ -67,7 +67,7 @@ abstract class InteractiveFigure extends Figure {
         this.updateShape(shape);
     }
 
-    move(side: 'left' | 'right' | 'down'):boolean {
+    move(side: 'left' | 'right' | 'down'): boolean {
         let moveX = this.getCell();
         let moveY = this.getRow();
         if (side === 'right') {
@@ -215,29 +215,11 @@ class InteractiveFigureIMiddle extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureIOBig extends InteractiveFigure {
-    initShape(): number[][] {
-        return [
-            [1, 1, 1],
-            [1, 1, 1],
-            [1, 1, 1],
-        ];
-    }
-}
 class InteractiveFigureILSmall extends InteractiveFigure {
     initShape(): number[][] {
         return [
             [1, 0],
             [1, 1],
-        ];
-    }
-}
-class InteractiveFigureStar extends InteractiveFigure {
-    initShape(): number[][] {
-        return [
-            [0, 1, 0],
-            [1, 1, 1],
-            [0, 1, 0],
         ];
     }
 }

@@ -1,49 +1,71 @@
 class ShadowFigure extends Figure {
-    onUpdateShapeInteractiveFigure = (figure:InteractiveFigure) => {
-        let row = this.getScene().rows;
-        figure.getPuzzles().forEach( p => {
-            for (let r = 1; r < this.getScene().rows; r++) {
-                let puzzle = this.getScene().getPuzzle(p.getCell(), r);
-                if (puzzle && puzzle.getRow() < row) {
-                    row = puzzle.getRow();
-                }
-            }
-        });
-
-        this.getPuzzles().forEach(p => {
-            p.remove();
-        });
-
-        let shape = this.initShape();
-        row -= 2;
-
-        figure.getPuzzles().forEach((p) => {
-            shape[row][p.getCell() - 1] = 1;
-        });
-
-        this.shape =  shape;
-        this.insertPuzzles(this.scene.generatePuzzles(this.getCountPuzzlePlaces(), BorderPuzzle));
-        console.log(row);
-    };
-    initShape(): number[][] {
-        let rows = this.getScene().rows - 2;
-        let cols = this.getScene().cols - 2;
-        let shape = [];
-        for (let r = 0; r < rows; r++) {
-            let row = [];
-            for (let c = 0; c < cols; c++) {
-                row.push(0)
-            }
-            shape.push(row)
+    private latestFigure: InteractiveFigure = null;
+    onUpdateShapeInteractiveFigure = (figure: InteractiveFigure) => {
+        if (this.latestFigure !== figure) {
+            this.getPuzzles().forEach(p => p.remove());
+            this.latestFigure = figure;
+            this.shape = this.initShape();
+            this.insertPuzzles(this.scene.generatePuzzles(this.getCountPuzzlePlaces(), ShadowPuzzle));
+        } else {
+            let puzzles = this.getPuzzles();
+            this.shape = this.initShape();
+            this.insertPuzzles(puzzles);
         }
+
+    };
+
+    initShape(): number[][] {
+        if (!this.latestFigure) {
+            return [];
+        }
+        let shape = [];
+        for (let row of this.latestFigure.getShape()) {
+            let sRow = [];
+            for (let cell of row) {
+                sRow.push(typeof cell !== "number" ? 1 : 0)
+            }
+            shape.push(sRow)
+        }
+
         return shape;
     }
 
     getCell(): number {
-        return 1;
+        return this.latestFigure.getCell();
     }
 
     getRow(): number {
-        return 1;
+        let barrier = null;
+        let yIndex = this.latestFigure.getRow();
+        labelStop:
+        while (yIndex <= this.getScene().rows) {
+            yIndex++;
+            let y = yIndex;
+            let x;
+                for (let row of this.getShape()) {
+                    x = this.latestFigure.getCell();
+                    for (let puzzle of row) {
+                        if (typeof puzzle !== "number") {
+                            barrier = this.getScene().getPuzzle(x, y);
+                            if (barrier && barrier.getFigure() !== this) {
+                                break labelStop;
+                            }
+                        }
+                        x += 1;
+                    }
+                    y += 1;
+                }
+        }
+        yIndex -= 1;
+
+        this.getPuzzles().forEach(p => {
+            if (p instanceof ShadowPuzzle) {
+                p.setAlpha(0.3 / yIndex * (yIndex - this.latestFigure.getRow()));
+            }
+        });
+
+        return yIndex;
     }
+
+
 }

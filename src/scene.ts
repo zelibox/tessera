@@ -6,6 +6,7 @@ class Scene {
     private borderFigure: BorderFigure;
     private wrapFigure: WrapFigure;
     private shadowFigure: ShadowFigure;
+    private pause: boolean = false;
 
     constructor(private app: PIXI.Application) {
         this.wrapFigure = new WrapFigure(this);
@@ -38,9 +39,7 @@ class Scene {
             InteractiveFigureL,
             InteractiveFigureDot,
             InteractiveFigureISmall,
-            InteractiveFigureIOBig,
             InteractiveFigureILSmall,
-            InteractiveFigureStar,
             InteractiveFigureIMiddle,
         ];
         this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
@@ -80,7 +79,7 @@ class Scene {
 
     getAllPuzzles(): IPuzzle[] {
         let puzzles = [];
-        for (let figure of [this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
+        for (let figure of [this.shadowFigure, this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
             for (let puzzle of figure.getPuzzles()) {
                 puzzles.push(puzzle);
             }
@@ -99,8 +98,15 @@ class Scene {
     }
 
     render() {
-        for (let figure of [this.interactiveFigure, this.borderFigure, this.wrapFigure, this.shadowFigure]) {
+        if (this.pause) {
+            return;
+        }
+        for (let figure of [this.shadowFigure, this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
             figure.render();
         }
+    }
+
+    setPause(pause:boolean){
+        this.pause = pause;
     }
 }

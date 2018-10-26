@@ -85,8 +85,6 @@ class WrapFigure extends Figure {
         }
 
         this.updateShape(shape);
-
-
         this.getScene().initInteractiveFigure();
     }
 }

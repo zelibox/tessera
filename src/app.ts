@@ -16,7 +16,6 @@ $(function () {
     function resize() {
         let puzzleSize = window.innerWidth / scene.cols;
         let toolbarHeight = $('.toolbar').height();
-        console.log(toolbarHeight);
         if ((puzzleSize * scene.rows) > (window.innerHeight - toolbarHeight)) {
             puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
         }
@@ -55,7 +54,7 @@ $(function () {
                     startX = event.touches[0].pageX;
                 }
             }
-            if (phase === 'cancel' && distance == 0) {
+            if (phase === 'cancel' && distance <= scene.puzzleSize) {
                 if (startX > (window.innerWidth / 2)) {
                     scene.getInteractiveFigure().move('right');
                 } else {
@@ -64,7 +63,7 @@ $(function () {
             }
         },
         swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
-            if (duration < 300) {
+            if (duration < 350) {
                 if (direction == 'left') { // left
                     while (scene.getInteractiveFigure().move('left')) {
                     }
@@ -96,6 +95,18 @@ $(function () {
         }
         else if (e.keyCode == 40) { // down
             scene.getInteractiveFigure().move('down')
+        }
+    });
+
+
+    let pauseElement = $('.pause');
+    pauseElement.on('click', function() {
+        if (pauseElement.hasClass('active')) {
+            pauseElement.removeClass('active');
+            scene.setPause(false)
+        } else {
+            pauseElement.addClass('active');
+            scene.setPause(true)
         }
     });
 
