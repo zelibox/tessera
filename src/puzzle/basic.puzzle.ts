@@ -11,6 +11,8 @@ interface IPuzzle {
 
     remove();
 
+    clearGraphics();
+
     setPosition(x: number, y: number): void;
 }
 
@@ -59,7 +61,7 @@ abstract class Puzzle implements IPuzzle {
             }
             y++;
         }
-        this.getFigure().getScene().getApp().stage.removeChild(this.graphics);
+        this.clearGraphics();
         this.figure.updateShape(shape);
     }
 
@@ -69,10 +71,32 @@ abstract class Puzzle implements IPuzzle {
         this.row = y;
     }
 
-    render() {
-        let width = this.figure.getScene().puzzleSize - 1;
-        let height = this.figure.getScene().puzzleSize - 1;
+    clearGraphics() {
+        if (this.graphics) {
+            this.getFigure().getScene().getApp().stage.removeChild(this.graphics);
+            this.graphics = null;
+        }
+    }
 
+    getGraphics() {
+        if (!this.graphics) {
+            let width = this.figure.getScene().puzzleSize - 1;
+            let height = this.figure.getScene().puzzleSize - 1;
+
+            let app = this.figure.getScene().getApp();
+            this.graphics = new PIXI.Graphics();
+            this.graphics.lineStyle(0);
+            this.graphics.beginFill(this.color, 1);
+            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+            this.graphics.endFill();
+            app.stage.addChild(this.graphics);
+        }
+
+        return this.graphics;
+    }
+
+
+    render() {
         let x = this.cell * this.figure.getScene().puzzleSize;
         let y = this.row * this.figure.getScene().puzzleSize;
         if ((this.x === null) || (this.y === null)) {
@@ -109,17 +133,9 @@ abstract class Puzzle implements IPuzzle {
             }
         }
 
-        let app = this.figure.getScene().getApp();
-        if (!this.graphics) {
-            this.graphics = new PIXI.Graphics();
-            this.graphics.lineStyle(0);
-            this.graphics.beginFill(this.color, 1);
-            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-            this.graphics.endFill();
-            app.stage.addChild(this.graphics);
-        }
-        this.graphics.position.x = this.x;
-        this.graphics.position.y = this.y;
+        let graphics = this.getGraphics();
+        graphics.position.x = this.x;
+        graphics.position.y = this.y;
     }
 }
 

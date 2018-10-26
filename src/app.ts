@@ -21,6 +21,8 @@ $(function () {
             puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
         }
         scene.puzzleSize = puzzleSize;
+        scene.getAllPuzzles().forEach(p => p.clearGraphics());
+
         app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
     }
 
@@ -34,7 +36,7 @@ $(function () {
     // controller
 
     let startX = 0;
-    $(app.view).swipe({
+    $(app.view)['swipe']({
         swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
             // console.log({
             //     event: event,
@@ -99,28 +101,27 @@ $(function () {
 
     let fullScreenToggleElement = $('.full-screen-toggle');
     fullScreenToggleElement.on('click', function () {
-        /* Get the documentElement (<html>) to display the page in fullscreen */
         let elem: any = document.documentElement;
         if (fullScreenToggleElement.hasClass('active')) {
             fullScreenToggleElement.removeClass('active');
             if (document.exitFullscreen) {
                 document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) { /* Firefox */
-                document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            } else if (document['mozCancelFullScreen']) {
+                document['mozCancelFullScreen']();
+            } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { /* IE/Edge */
-                document.msExitFullscreen();
+            } else if (document['msExitFullscreen']) {
+                document['msExitFullscreen']();
             }
         } else {
             $('.full-screen-toggle').addClass('active');
             if (elem.requestFullscreen) {
                 elem.requestFullscreen();
-            } else if (elem.mozRequestFullScreen) { /* Firefox */
+            } else if (elem.mozRequestFullScreen) {
                 elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            } else if (elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE/Edge */
+            } else if (elem.msRequestFullscreen) {
                 elem.msRequestFullscreen();
             }
         }

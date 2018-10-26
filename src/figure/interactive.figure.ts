@@ -102,9 +102,10 @@ abstract class InteractiveFigure extends Figure {
 
         if (barrierType) {
             if (barrierType === 'down') {
-                barrier.getFigure().impact(this);
                 if (this.getRow() === 1) {
                     this.scene.getWrapFigure().getPuzzles().forEach(p => p.remove());
+                } else {
+                    barrier.getFigure().impact(this);
                 }
             }
             return false;
@@ -231,19 +232,11 @@ class InteractiveFigureILSmall extends InteractiveFigure {
         ];
     }
 }
-class InteractiveFigureIJSmall extends InteractiveFigure {
-    initShape(): number[][] {
-        return [
-            [0, 1],
-            [1, 1],
-        ];
-    }
-}
-class InteractiveFigureHole extends InteractiveFigure {
+class InteractiveFigureStar extends InteractiveFigure {
     initShape(): number[][] {
         return [
             [0, 1, 0],
-            [1, 0, 1],
+            [1, 1, 1],
             [0, 1, 0],
         ];
     }

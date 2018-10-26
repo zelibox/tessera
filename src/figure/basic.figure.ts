@@ -1,5 +1,6 @@
 abstract class Figure implements IFigure {
-    private shape: Array<number | IPuzzle>[] = null;
+    protected shape: Array<number | IPuzzle>[] = null;
+    private onUpdateShapeCallbacks: ((figure: IFigure) => void)[] = [];
 
     constructor(protected scene: Scene) {
     }
@@ -34,6 +35,10 @@ abstract class Figure implements IFigure {
         return this.shape;
     }
 
+    onUpdateShape(callback: (figure: IFigure) => void) {
+        this.onUpdateShapeCallbacks.push(callback);
+    }
+
     updateShape(shape: Array<number | IPuzzle>[]) {
         this.shape = shape;
         let x;
@@ -48,6 +53,8 @@ abstract class Figure implements IFigure {
             }
             y += 1;
         }
+
+        this.onUpdateShapeCallbacks.forEach(c => c(this))
     }
 
 
@@ -112,4 +119,6 @@ interface IFigure {
     getShape(): Array<number | IPuzzle>[];
 
     updateShape(shape: Array<number | IPuzzle>[]);
+
+    onUpdateShape(param: (figure: IFigure) => void)
 }

@@ -5,16 +5,26 @@ class Scene {
     private interactiveFigure: InteractiveFigure;
     private borderFigure: BorderFigure;
     private wrapFigure: WrapFigure;
+    private shadowFigure: ShadowFigure;
 
     constructor(private app: PIXI.Application) {
-        this.initInteractiveFigure();
-        this.initBorderFigure();
         this.wrapFigure = new WrapFigure(this);
+
+        this.borderFigure = new BorderFigure(this);
+        this.borderFigure.insertPuzzles(
+            this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle)
+        );
+        this.shadowFigure = new ShadowFigure(this);
+
+
+        this.initInteractiveFigure();
     }
 
     getApp(): PIXI.Application {
         return this.app;
     }
+
+
 
     initInteractiveFigure() {
         // todo
@@ -30,21 +40,14 @@ class Scene {
             InteractiveFigureISmall,
             InteractiveFigureIOBig,
             InteractiveFigureILSmall,
-            InteractiveFigureIJSmall,
-            InteractiveFigureHole,
+            InteractiveFigureStar,
             InteractiveFigureIMiddle,
         ];
         this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
         this.interactiveFigure.insertPuzzles(
             this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle)
         );
-    }
-
-    private initBorderFigure() {
-        this.borderFigure = new BorderFigure(this);
-        this.borderFigure.insertPuzzles(
-            this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle)
-        );
+        this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure)
     }
 
     public getInteractiveFigure() {
@@ -59,6 +62,10 @@ class Scene {
         return this.wrapFigure;
     }
 
+    public getShadowFigure() {
+        return this.shadowFigure;
+    }
+
     getPuzzle(cell, row): IPuzzle {
         for (let figure of [this.borderFigure, this.wrapFigure]) {
             for (let puzzle of figure.getPuzzles()) {
@@ -71,6 +78,17 @@ class Scene {
         return null;
     }
 
+    getAllPuzzles(): IPuzzle[] {
+        let puzzles = [];
+        for (let figure of [this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
+            for (let puzzle of figure.getPuzzles()) {
+                puzzles.push(puzzle);
+            }
+        }
+
+        return puzzles;
+    }
+
     generatePuzzles(count, type) {
         let arr = [];
         for (let i = 0; i < count; i++) {
@@ -81,7 +99,7 @@ class Scene {
     }
 
     render() {
-        for (let figure of [this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
+        for (let figure of [this.interactiveFigure, this.borderFigure, this.wrapFigure, this.shadowFigure]) {
             figure.render();
         }
     }
