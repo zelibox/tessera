@@ -1,9 +1,13 @@
 body {
   padding: 0;
   margin: 0;
-  background: #222831;
+  background: #393e46;
   overflow: hidden;
   overscroll-behavior: contain;
+}
+canvas {
+  background: #222831;
+  box-shadow: inset 0px 0px 0px 5px #393e46;
 }
 .toolbar {
   height: 50px;
@@ -12,5 +16,5 @@ body {
   text-align: center;
 }
 :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen, :fullscreen  {
-  background-color: #222831;
+  background-color: #393e46;
 }

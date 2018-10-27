@@ -35,6 +35,7 @@ $(function () {
     });
     // controller
     var startX = 0;
+    var interval;
     $(app.view)['swipe']({
         swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
             // console.log({

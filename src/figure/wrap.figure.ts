@@ -76,7 +76,7 @@ class WrapFigure extends Figure {
                 if (countFill === row.length) {
                     for (let cell of row) {
                         if (typeof cell !== "number") {
-                            cell.remove();
+                           cell.remove();
                         }
                     }
                 }
