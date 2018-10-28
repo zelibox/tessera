@@ -59,9 +59,9 @@ class ShadowFigure extends Figure {
         yIndex -= 1;
 
         this.getPuzzles().forEach(puzzle => {
-            puzzle.createAnimation(AlphaPuzzleAnimation,
-                0.3 / yIndex * (yIndex - this.latestFigure.getRow())
-            )
+            if (puzzle instanceof ShadowPuzzle) {
+                puzzle.setAlpha(0.3 / yIndex * (yIndex - this.latestFigure.getRow()))
+            }
         });
 
         return yIndex;

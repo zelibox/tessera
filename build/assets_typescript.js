@@ -28,16 +28,6 @@ $(function () {
     let interval;
     $(app.view)['swipe']({
         swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
-            // console.log({
-            //     event: event,
-            //     phase: phase,
-            //     direction: direction,
-            //     distance: distance,
-            //     duration: duration,
-            //     fingers: fingers,
-            //     fingerData: fingerData,
-            //     currentDirection: currentDirection
-            // });
             if (phase === 'start') {
                 if (event.pageX) {
                     startX = event.pageX;
@@ -152,11 +142,19 @@ class Scene {
         return this.app;
     }
     initInteractiveFigure() {
-        console.log('initInteractiveFigure');
         // todo
         let figures = [
             InteractiveFigureI,
             InteractiveFigureO,
+            InteractiveFigureT,
+            InteractiveFigureS,
+            InteractiveFigureZ,
+            InteractiveFigureJ,
+            InteractiveFigureL,
+            InteractiveFigureDot,
+            InteractiveFigureISmall,
+            InteractiveFigureILSmall,
+            InteractiveFigureIMiddle,
         ];
         this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
         this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
@@ -596,7 +594,9 @@ class ShadowFigure extends Figure {
         }
         yIndex -= 1;
         this.getPuzzles().forEach(puzzle => {
-            puzzle.createAnimation(AlphaPuzzleAnimation, 0.3 / yIndex * (yIndex - this.latestFigure.getRow()));
+            if (puzzle instanceof ShadowPuzzle) {
+                puzzle.setAlpha(0.3 / yIndex * (yIndex - this.latestFigure.getRow()));
+            }
         });
         return yIndex;
     }
@@ -676,10 +676,8 @@ class WrapFigure extends Figure {
             }
         }
         let promises = removeList.map(p => {
-            return p.createAnimation(BlurPuzzleAnimation, 100);
+            return p.createAnimation(ScalePuzzleAnimation, { x: 0, y: 0, alpha: 0 });
         });
-        // new Promise()
-        console.log('impact');
         Promise.all(promises).then(() => {
             removeList.map(p => p.remove());
             this.updateShape(shape);
@@ -744,6 +742,7 @@ class Puzzle {
             y++;
         }
         this.clearGraphics();
+        this.activeAnimationList = [];
         this.figure.updateShape(shape);
     }
     setPosition(x, y) {
@@ -765,6 +764,22 @@ class Puzzle {
         this.graphics.beginFill(this.getColor(), 1);
         this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         this.graphics.endFill();
+        this.graphics.pivot.set(width / 2, height / 2);
+        // let text = new PIXI.Text(
+        //     '1',
+        //     {
+        //         fontFamily : 'monospace',
+        //         fontSize: this.getFigure().getScene().puzzleSize / 2,
+        //         lineHeight: this.getFigure().getScene().puzzleSize / 2,
+        //         fill : 0x393e46,
+        //         align : 'center'
+        //     });
+        //
+        // text.anchor.x =0.5;
+        // text.anchor.y =0.5;
+        // text.y = this.getFigure().getScene().puzzleSize / 2;
+        // text.x = this.getFigure().getScene().puzzleSize / 2;
+        // this.graphics.addChild(text);
         app.stage.addChild(this.graphics);
         return this.graphics;
     }
@@ -775,8 +790,8 @@ class Puzzle {
         return this.graphics;
     }
     render() {
-        let x = this.cell * this.figure.getScene().puzzleSize;
-        let y = this.row * this.figure.getScene().puzzleSize;
+        let x = this.cell * this.figure.getScene().puzzleSize + this.figure.getScene().puzzleSize / 2;
+        let y = this.row * this.figure.getScene().puzzleSize + this.figure.getScene().puzzleSize / 2;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
             this.y = y;
@@ -813,7 +828,6 @@ class Puzzle {
         let graphics = this.getGraphics();
         graphics.position.x = this.x;
         graphics.position.y = this.y;
-        // console.log(this.activeAnimationList);
         this.activeAnimationList.forEach(a => a.animate());
     }
 }
@@ -830,6 +844,11 @@ class ShadowPuzzle extends Puzzle {
         let g = super.initGraphics();
         g.alpha = 0.29;
         return g;
+    }
+    setAlpha(alpha) {
+        if (this.graphics) {
+            this.graphics.alpha = alpha;
+        }
     }
 }
 class SimplePuzzle extends Puzzle {
@@ -884,19 +903,21 @@ class AlphaPuzzleAnimation extends PuzzleAnimation {
     }
 }
 ///<reference path="basic.puzzle.animation.ts"/>
-class BlurPuzzleAnimation extends PuzzleAnimation {
+class ScalePuzzleAnimation extends PuzzleAnimation {
     onStart() {
-        this.blurFilter = new PIXI.filters.BlurFilter();
-        this.blurFilter.blur = 0;
-        this.startBlur = this.blurFilter.blur;
-        this.getPuzzle().getGraphics().filters = [this.blurFilter];
+        this.startX = this.getPuzzle().getGraphics().scale.x;
+        this.startY = this.getPuzzle().getGraphics().scale.y;
+        this.startAlpha = this.getPuzzle().getGraphics().alpha;
     }
     onEnd() {
-        this.blurFilter = this.getParams();
+        this.getPuzzle().getGraphics().scale.x = this.getParams().x;
+        this.getPuzzle().getGraphics().scale.y = this.getParams().y;
+        this.getPuzzle().getGraphics().alpha = this.getParams().alpha;
     }
     animate() {
-        this.blurFilter.blur = this.startBlur + ((this.getParams() - this.startBlur) * this.getProgress());
-        console.log(this.blurFilter.blur);
+        this.getPuzzle().getGraphics().scale.x = this.startX + ((this.getParams().x - this.startX) * this.getProgress());
+        this.getPuzzle().getGraphics().scale.y = this.startY + ((this.getParams().y - this.startY) * this.getProgress());
+        this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams().alpha - this.startAlpha) * this.getProgress());
     }
 }
 

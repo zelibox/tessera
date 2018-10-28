@@ -9,4 +9,10 @@ class ShadowPuzzle extends Puzzle {
         g.alpha = 0.29;
         return g;
     }
+
+    setAlpha(alpha) {
+        if (this.graphics) {
+            this.graphics.alpha = alpha;
+        }
+    }
 }

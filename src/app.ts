@@ -39,16 +39,6 @@ $(function () {
     let interval;
     $(app.view)['swipe']({
         swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
-            // console.log({
-            //     event: event,
-            //     phase: phase,
-            //     direction: direction,
-            //     distance: distance,
-            //     duration: duration,
-            //     fingers: fingers,
-            //     fingerData: fingerData,
-            //     currentDirection: currentDirection
-            // });
             if (phase === 'start') {
                 if (event.pageX) {
                     startX = event.pageX;

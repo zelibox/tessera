@@ -92,6 +92,7 @@ abstract class Puzzle implements IPuzzle {
             y++;
         }
         this.clearGraphics();
+        this.activeAnimationList = [];
         this.figure.updateShape(shape);
     }
 
@@ -117,6 +118,24 @@ abstract class Puzzle implements IPuzzle {
         this.graphics.beginFill(this.getColor(), 1);
         this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         this.graphics.endFill();
+        this.graphics.pivot.set(width/2, height/2);
+
+        // let text = new PIXI.Text(
+        //     '1',
+        //     {
+        //         fontFamily : 'monospace',
+        //         fontSize: this.getFigure().getScene().puzzleSize / 2,
+        //         lineHeight: this.getFigure().getScene().puzzleSize / 2,
+        //         fill : 0x393e46,
+        //         align : 'center'
+        //     });
+        //
+        // text.anchor.x =0.5;
+        // text.anchor.y =0.5;
+        // text.y = this.getFigure().getScene().puzzleSize / 2;
+        // text.x = this.getFigure().getScene().puzzleSize / 2;
+        // this.graphics.addChild(text);
+
         app.stage.addChild(this.graphics);
         return this.graphics;
     }
@@ -130,8 +149,8 @@ abstract class Puzzle implements IPuzzle {
     }
 
     render() {
-        let x = this.cell * this.figure.getScene().puzzleSize;
-        let y = this.row * this.figure.getScene().puzzleSize;
+        let x = this.cell * this.figure.getScene().puzzleSize + this.figure.getScene().puzzleSize / 2;
+        let y = this.row * this.figure.getScene().puzzleSize + this.figure.getScene().puzzleSize / 2;
         if ((this.x === null) || (this.y === null)) {
             this.x = x;
             this.y = y;
@@ -170,7 +189,6 @@ abstract class Puzzle implements IPuzzle {
         graphics.position.x = this.x;
         graphics.position.y = this.y;
 
-        // console.log(this.activeAnimationList);
         this.activeAnimationList.forEach( a => a.animate());
     }
 }

@@ -28,20 +28,19 @@ class Scene {
 
 
     initInteractiveFigure() {
-        console.log('initInteractiveFigure')
         // todo
         let figures = [
             InteractiveFigureI,
             InteractiveFigureO,
-            // InteractiveFigureT,
-            // InteractiveFigureS,
-            // InteractiveFigureZ,
-            // InteractiveFigureJ,
-            // InteractiveFigureL,
-            // InteractiveFigureDot,
-            // InteractiveFigureISmall,
-            // InteractiveFigureILSmall,
-            // InteractiveFigureIMiddle,
+            InteractiveFigureT,
+            InteractiveFigureS,
+            InteractiveFigureZ,
+            InteractiveFigureJ,
+            InteractiveFigureL,
+            InteractiveFigureDot,
+            InteractiveFigureISmall,
+            InteractiveFigureILSmall,
+            InteractiveFigureIMiddle,
         ];
         this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
         this.interactiveFigure.insertPuzzles(

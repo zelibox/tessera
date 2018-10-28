@@ -80,12 +80,10 @@ class WrapFigure extends Figure {
             }
         }
         let promises = removeList.map(p => {
-            return p.createAnimation(BlurPuzzleAnimation,
-                100
+            return p.createAnimation(ScalePuzzleAnimation,
+                {x: 0, y: 0, alpha: 0}
             );
         });
-        // new Promise()
-        console.log('impact');
         Promise.all(promises).then(() => {
             removeList.map(p => p.remove());
             this.updateShape(shape);
