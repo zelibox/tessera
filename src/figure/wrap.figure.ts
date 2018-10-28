@@ -67,6 +67,7 @@ class WrapFigure extends Figure {
             y += 1;
         }
 
+        let removeList = [];
         for (let row of shape) {
             let countFill = 0;
             for (let cell of row) {
@@ -74,17 +75,22 @@ class WrapFigure extends Figure {
                     countFill++;
                 }
                 if (countFill === row.length) {
-                    for (let cell of row) {
-                        if (typeof cell !== "number") {
-                           cell.remove();
-                        }
-                    }
+                    removeList = removeList.concat(row);
                 }
             }
-
         }
+        let promises = removeList.map(p => {
+            return p.createAnimation(BlurPuzzleAnimation,
+                100
+            );
+        });
+        // new Promise()
+        console.log('impact');
+        Promise.all(promises).then(() => {
+            removeList.map(p => p.remove());
+            this.updateShape(shape);
+            this.getScene().initInteractiveFigure();
+        });
 
-        this.updateShape(shape);
-        this.getScene().initInteractiveFigure();
     }
 }

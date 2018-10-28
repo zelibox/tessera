@@ -38,10 +38,10 @@ class ShadowFigure extends Figure {
         let barrier = null;
         let yIndex = this.latestFigure.getRow();
         labelStop:
-        while (yIndex <= this.getScene().rows) {
-            yIndex++;
-            let y = yIndex;
-            let x;
+            while (yIndex <= this.getScene().rows) {
+                yIndex++;
+                let y = yIndex;
+                let x;
                 for (let row of this.getShape()) {
                     x = this.latestFigure.getCell();
                     for (let puzzle of row) {
@@ -55,13 +55,13 @@ class ShadowFigure extends Figure {
                     }
                     y += 1;
                 }
-        }
+            }
         yIndex -= 1;
 
-        this.getPuzzles().forEach(p => {
-            if (p instanceof ShadowPuzzle) {
-                p.setAlpha(0.3 / yIndex * (yIndex - this.latestFigure.getRow()));
-            }
+        this.getPuzzles().forEach(puzzle => {
+            puzzle.createAnimation(AlphaPuzzleAnimation,
+                0.3 / yIndex * (yIndex - this.latestFigure.getRow())
+            )
         });
 
         return yIndex;

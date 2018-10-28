@@ -101,7 +101,7 @@ gulp.task('assets_typescript', function () {
         .pipe(ts({
             noImplicitAny: false,
             outFile: 'assets_typescript.js',
-            "target": "es5"
+            "target": "es6"
         }))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.buildPath));

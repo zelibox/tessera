@@ -3,7 +3,7 @@ abstract class InteractiveFigure extends Figure {
     private renderStartDate: Date = null;
     private cell = null;
     private row = null;
-
+    private enableMove = true;
     getCell(): number {
         if (this.cell === null) {
             this.cell = Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2))
@@ -32,6 +32,9 @@ abstract class InteractiveFigure extends Figure {
     }
 
     rotate(side: 'left' | 'right') {
+        if (!this.enableMove) {
+            return;
+        }
         const n = this.getShape().length - 1;
         let shape = this.getShape().map((row, i) => {
                 row = row.map((val, j) => {
@@ -68,6 +71,9 @@ abstract class InteractiveFigure extends Figure {
     }
 
     move(side: 'left' | 'right' | 'down'): boolean {
+        if (!this.enableMove) {
+            return false;
+        }
         let moveX = this.getCell();
         let moveY = this.getRow();
         if (side === 'right') {
@@ -103,8 +109,10 @@ abstract class InteractiveFigure extends Figure {
         if (barrierType) {
             if (barrierType === 'down') {
                 if (this.getRow() === 1) {
+                    // todo
                     this.scene.getWrapFigure().getPuzzles().forEach(p => p.remove());
                 } else {
+                    this.enableMove = false;
                     barrier.getFigure().impact(this);
                 }
             }

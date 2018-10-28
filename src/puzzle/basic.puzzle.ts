@@ -11,11 +11,17 @@ interface IPuzzle {
 
     remove();
 
+    getGraphics(): PIXI.Graphics;
+
     clearGraphics();
 
     setPosition(x: number, y: number): void;
 
     getColor(): number;
+
+    createAnimation(animationType, params?: any);
+
+    deactivateAnimation(animation:IPuzzleAnimation);
 }
 
 abstract class Puzzle implements IPuzzle {
@@ -31,6 +37,7 @@ abstract class Puzzle implements IPuzzle {
     private figure: IFigure;
     private renderStartDate: Date;
     protected graphics: PIXI.Graphics;
+    private activeAnimationList:IPuzzleAnimation[] = [];
 
     abstract getColor(): number
 
@@ -48,6 +55,26 @@ abstract class Puzzle implements IPuzzle {
 
     setFigure(figure: IFigure) {
         this.figure = figure;
+    }
+
+    createAnimation(animationType, params?:any) {
+        let animationFilter = this.activeAnimationList.filter( a => a instanceof animationType);
+        if (animationFilter.length) {
+            return animationFilter[0].run(params);
+        } else {
+            let animation:IPuzzleAnimation = new animationType(this);
+            this.activeAnimationList.push(animation);
+            return animation.run(params);
+        }
+
+
+    }
+
+    deactivateAnimation(animation: IPuzzleAnimation) {
+        let index = this.activeAnimationList.indexOf(animation);
+        if (index !== -1) {
+            this.activeAnimationList.splice(index, 1);
+        }
     }
 
     remove() {
@@ -68,7 +95,6 @@ abstract class Puzzle implements IPuzzle {
         this.figure.updateShape(shape);
     }
 
-
     setPosition(x: number, y: number): void {
         this.cell = x;
         this.row = y;
@@ -81,23 +107,27 @@ abstract class Puzzle implements IPuzzle {
         }
     }
 
+    initGraphics() {
+        let width = this.figure.getScene().puzzleSize - 1;
+        let height = this.figure.getScene().puzzleSize - 1;
+
+        let app = this.figure.getScene().getApp();
+        this.graphics = new PIXI.Graphics();
+        this.graphics.lineStyle(0);
+        this.graphics.beginFill(this.getColor(), 1);
+        this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        this.graphics.endFill();
+        app.stage.addChild(this.graphics);
+        return this.graphics;
+    }
+
     getGraphics() {
         if (!this.graphics) {
-            let width = this.figure.getScene().puzzleSize - 1;
-            let height = this.figure.getScene().puzzleSize - 1;
-
-            let app = this.figure.getScene().getApp();
-            this.graphics = new PIXI.Graphics();
-            this.graphics.lineStyle(0);
-            this.graphics.beginFill(this.getColor(), 1);
-            this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-            this.graphics.endFill();
-            app.stage.addChild(this.graphics);
+            this.initGraphics();
         }
 
         return this.graphics;
     }
-
 
     render() {
         let x = this.cell * this.figure.getScene().puzzleSize;
@@ -139,54 +169,8 @@ abstract class Puzzle implements IPuzzle {
         let graphics = this.getGraphics();
         graphics.position.x = this.x;
         graphics.position.y = this.y;
-    }
-}
 
-
-class SimplePuzzle extends Puzzle {
-    getColor(): number {
-        return 0x00adb5;
-    }
-}
-
-class BorderPuzzle extends Puzzle {
-    getColor(): number {
-        return 0x393e46;
-    }
-}
-
-class ShadowPuzzle extends Puzzle {
-    private blurFilter: PIXI.filters.BlurFilter;
-    private alpha: number = 0;
-    private renderBlurStartDate: Date = new Date();
-    getColor(): number {
-        return 0x00adb5;
-    }
-
-    getGraphics(): PIXI.Graphics {
-        if (!this.graphics) {
-            let graphics = super.getGraphics();
-            graphics.alpha = 0.10;
-            this.blurFilter = new PIXI.filters.BlurFilter();
-            this.blurFilter.blur = 0;
-            // graphics.filters = [this.blurFilter];
-        }
-
-        return this.graphics;
-    }
-
-    setAlpha(blur:number) {
-        this.alpha = blur;
-        this.renderBlurStartDate = new Date();
-    }
-
-    render(): void {
-        super.render();
-        let diff = (new Date().getTime() - this.renderBlurStartDate.getTime() / this.animationTime);
-        if (diff > 1) {
-            diff = 1;
-        }
-        this.getGraphics().alpha = this.alpha * diff;
-        // this.blurFilter.blur = this.blur * diff;
+        // console.log(this.activeAnimationList);
+        this.activeAnimationList.forEach( a => a.animate());
     }
 }
