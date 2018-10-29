@@ -4,6 +4,12 @@ abstract class InteractiveFigure extends Figure {
     private cell = null;
     private row = null;
     private enableMove = true;
+
+
+    constructor(scene: Scene) {
+        super(scene);
+    }
+
     getCell(): number {
         if (this.cell === null) {
             this.cell = Math.floor((this.getScene().cols / 2) - (this.getShape()[0].length / 2))

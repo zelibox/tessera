@@ -1,3 +1,17 @@
+class RainMagicFigure extends InteractiveFigure {
+    constructor(scene: Scene) {
+        super(scene);
+        this.insertPuzzles([new RainMagicPuzzle()])
+    }
+
+
+    initShape(): number[][] {
+        return [
+            [1],
+        ];
+    }
+
+}
 // LeftWind -- move all to right
 // RightWind  -- move all to left
 // TopWind -- move all to down

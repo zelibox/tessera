@@ -26,7 +26,8 @@ var config = {
             dependencies: [],
             assets: [
                 './src/*.ts',
-                './src/*/*.ts'
+                './src/*/*.ts',
+                './src/*/*/*.ts',
             ]
         },
         css: {

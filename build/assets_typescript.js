@@ -142,23 +142,27 @@ class Scene {
         return this.app;
     }
     initInteractiveFigure() {
-        // todo
-        let figures = [
-            InteractiveFigureI,
-            InteractiveFigureO,
-            InteractiveFigureT,
-            InteractiveFigureS,
-            InteractiveFigureZ,
-            InteractiveFigureJ,
-            InteractiveFigureL,
-            InteractiveFigureDot,
-            InteractiveFigureISmall,
-            InteractiveFigureILSmall,
-            InteractiveFigureIMiddle,
-        ];
-        this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
-        this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
-        this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure);
+        if ((Math.floor(Math.random() * (10 - 1 + 1)) + 1) === 10) {
+            this.interactiveFigure = new RainMagicFigure(this);
+        }
+        else {
+            let figures = [
+                InteractiveFigureI,
+                InteractiveFigureO,
+                InteractiveFigureT,
+                InteractiveFigureS,
+                InteractiveFigureZ,
+                InteractiveFigureJ,
+                InteractiveFigureL,
+                InteractiveFigureDot,
+                InteractiveFigureISmall,
+                InteractiveFigureILSmall,
+                InteractiveFigureIMiddle,
+            ];
+            this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
+            this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
+            this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure);
+        }
     }
     getInteractiveFigure() {
         return this.interactiveFigure;
@@ -324,8 +328,8 @@ class BorderFigure extends Figure {
 }
 ///<reference path="basic.figure.ts"/>
 class InteractiveFigure extends Figure {
-    constructor() {
-        super(...arguments);
+    constructor(scene) {
+        super(scene);
         this.renderStartDate = null;
         this.cell = null;
         this.row = null;
@@ -533,6 +537,17 @@ class InteractiveFigureILSmall extends InteractiveFigure {
         return [
             [1, 0],
             [1, 1],
+        ];
+    }
+}
+class RainMagicFigure extends InteractiveFigure {
+    constructor(scene) {
+        super(scene);
+        this.insertPuzzles([new RainMagicPuzzle()]);
+    }
+    initShape() {
+        return [
+            [1],
         ];
     }
 }
@@ -935,6 +950,70 @@ class ScalePuzzleAnimation extends PuzzleAnimation {
         this.getPuzzle().getGraphics().scale.x = this.startX + ((this.getParams().x - this.startX) * this.getProgress());
         this.getPuzzle().getGraphics().scale.y = this.startY + ((this.getParams().y - this.startY) * this.getProgress());
         this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams().alpha - this.startAlpha) * this.getProgress());
+    }
+}
+class RainMagicPuzzle extends Puzzle {
+    constructor() {
+        super(...arguments);
+        this.animationTime = 2000;
+    }
+    getColor() {
+        return 0x00adb5;
+    }
+    initGraphics() {
+        let width = this.getFigure().getScene().puzzleSize - 1;
+        let height = this.getFigure().getScene().puzzleSize - 1;
+        let app = this.getFigure().getScene().getApp();
+        let rootGraphics = new PIXI.Graphics();
+        // rootGraphics.lineStyle(0);
+        // rootGraphics.beginFill(this.getColor(), 1);
+        rootGraphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // rootGraphics.endFill();
+        // rootGraphics.pivot.set(width/2, height/2);
+        let rWidth = width / 2 - 2;
+        let graphics1 = new PIXI.Graphics();
+        graphics1.lineStyle(0);
+        graphics1.beginFill(this.getColor(), 1);
+        graphics1.drawRoundedRect(0, 0, rWidth, rWidth, Math.floor(rWidth * 0.3));
+        graphics1.endFill();
+        let graphics2 = new PIXI.Graphics();
+        graphics2.lineStyle(0);
+        graphics2.beginFill(this.getColor(), 1);
+        graphics2.drawRoundedRect(rWidth + 2, rWidth + 2, rWidth, rWidth, Math.floor(rWidth * 0.3));
+        graphics2.endFill();
+        rootGraphics.addChild(graphics1);
+        rootGraphics.addChild(graphics2);
+        let textures = [rootGraphics.generateCanvasTexture()];
+        let max = rWidth + 2;
+        for (let i = 0; i < max; i++) {
+            graphics1.pivot.y -= 1;
+            graphics2.pivot.y += 1;
+            textures.push(rootGraphics.generateCanvasTexture());
+        }
+        for (let i = 0; i < max; i++) {
+            graphics1.pivot.y += 1;
+            graphics2.pivot.y -= 1;
+            textures.push(rootGraphics.generateCanvasTexture());
+        }
+        for (let i = 0; i < max; i++) {
+            graphics1.pivot.x -= 1;
+            graphics2.pivot.x += 1;
+            textures.push(rootGraphics.generateCanvasTexture());
+        }
+        for (let i = 0; i < max; i++) {
+            graphics1.pivot.y -= 1;
+            graphics2.pivot.y += 1;
+            textures.push(rootGraphics.generateCanvasTexture());
+        }
+        let sprite = new PIXI.extras.AnimatedSprite(textures, true);
+        // sprite.position.x = 100;
+        sprite.animationSpeed = 0.5;
+        sprite.play();
+        this.graphics = sprite;
+        this.graphics.pivot.set(width / 2, height / 2);
+        app.stage.addChild(sprite);
+        return sprite;
+        return super.initGraphics();
     }
 }
 

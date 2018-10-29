@@ -28,25 +28,28 @@ class Scene {
 
 
     initInteractiveFigure() {
-        // todo
-        let figures = [
-            InteractiveFigureI,
-            InteractiveFigureO,
-            InteractiveFigureT,
-            InteractiveFigureS,
-            InteractiveFigureZ,
-            InteractiveFigureJ,
-            InteractiveFigureL,
-            InteractiveFigureDot,
-            InteractiveFigureISmall,
-            InteractiveFigureILSmall,
-            InteractiveFigureIMiddle,
-        ];
-        this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
-        this.interactiveFigure.insertPuzzles(
-            this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle)
-        );
-        this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure)
+        if ((Math.floor(Math.random() * (10 - 1 + 1)) + 1) === 10) {
+            this.interactiveFigure = new RainMagicFigure(this);
+        } else {
+            let figures = [
+                InteractiveFigureI,
+                InteractiveFigureO,
+                InteractiveFigureT,
+                InteractiveFigureS,
+                InteractiveFigureZ,
+                InteractiveFigureJ,
+                InteractiveFigureL,
+                InteractiveFigureDot,
+                InteractiveFigureISmall,
+                InteractiveFigureILSmall,
+                InteractiveFigureIMiddle,
+            ];
+            this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
+            this.interactiveFigure.insertPuzzles(
+                this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle)
+            );
+            this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure)
+        }
     }
 
     public getInteractiveFigure() {
