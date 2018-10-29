@@ -6,7 +6,7 @@ class ShadowPuzzle extends Puzzle {
 
     initGraphics(): PIXI.Graphics {
         let g = super.initGraphics();
-        g.alpha = 0.29;
+        g.alpha = 0;
         return g;
     }
 
