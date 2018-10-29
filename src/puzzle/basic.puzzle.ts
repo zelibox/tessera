@@ -11,7 +11,7 @@ interface IPuzzle {
 
     remove();
 
-    getGraphics(): PIXI.Graphics;
+    getGraphics(): PIXI.Container;
 
     clearGraphics();
 
@@ -36,7 +36,7 @@ abstract class Puzzle implements IPuzzle {
     private row: number = 5; //  todo!!!!!
     private figure: IFigure;
     private renderStartDate: Date;
-    protected graphics: PIXI.Graphics;
+    protected graphics: PIXI.Container;
     private activeAnimationList:IPuzzleAnimation[] = [];
 
     abstract getColor(): number
@@ -113,13 +113,15 @@ abstract class Puzzle implements IPuzzle {
         let height = this.figure.getScene().puzzleSize - 1;
 
         let app = this.figure.getScene().getApp();
-        this.graphics = new PIXI.Graphics();
-        this.graphics.lineStyle(0);
-        this.graphics.beginFill(this.getColor(), 1);
-        this.graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        this.graphics.endFill();
-        this.graphics.pivot.set(width/2, height/2);
-
+        let graphics = new PIXI.Graphics();
+        graphics.lineStyle(0);
+        graphics.beginFill(this.getColor(), 1);
+        graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        graphics.endFill();
+        graphics.pivot.set(width/2, height/2);
+        this.graphics = graphics;
+        app.stage.addChild(this.graphics);
+        return this.graphics;
         // let text = new PIXI.Text(
         //     '1',
         //     {
@@ -135,9 +137,6 @@ abstract class Puzzle implements IPuzzle {
         // text.y = this.getFigure().getScene().puzzleSize / 2;
         // text.x = this.getFigure().getScene().puzzleSize / 2;
         // this.graphics.addChild(text);
-
-        app.stage.addChild(this.graphics);
-        return this.graphics;
     }
 
     getGraphics() {

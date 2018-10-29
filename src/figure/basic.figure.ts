@@ -5,6 +5,9 @@ abstract class Figure implements IFigure {
     constructor(protected scene: Scene) {
     }
 
+    onImpact(): void {
+    }
+
     getScene(): Scene {
         return this.scene;
     }
@@ -116,9 +119,13 @@ interface IFigure {
 
     getScene(): Scene;
 
+    render();
+
     getShape(): Array<number | IPuzzle>[];
 
     updateShape(shape: Array<number | IPuzzle>[]);
 
     onUpdateShape(param: (figure: IFigure) => void)
+
+    onImpact(): void;
 }

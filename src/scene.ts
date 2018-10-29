@@ -7,6 +7,7 @@ class Scene {
     private wrapFigure: WrapFigure;
     private shadowFigure: ShadowFigure;
     private pause: boolean = false;
+    private customFigures: IFigure[] = [];
 
     constructor(private app: PIXI.Application) {
         this.wrapFigure = new WrapFigure(this);
@@ -28,10 +29,11 @@ class Scene {
 
 
     initInteractiveFigure() {
-        if ((Math.floor(Math.random() * (10 - 1 + 1)) + 1) === 10) {
+        if ((Math.floor(Math.random() * (10 - 1 + 1)) + 1) == 100) {
             this.interactiveFigure = new RainMagicFigure(this);
         } else {
             let figures = [
+                InteractiveFigureDot,
                 InteractiveFigureI,
                 InteractiveFigureO,
                 InteractiveFigureT,
@@ -39,7 +41,6 @@ class Scene {
                 InteractiveFigureZ,
                 InteractiveFigureJ,
                 InteractiveFigureL,
-                InteractiveFigureDot,
                 InteractiveFigureISmall,
                 InteractiveFigureILSmall,
                 InteractiveFigureIMiddle,
@@ -69,6 +70,12 @@ class Scene {
     }
 
     getPuzzle(cell, row): IPuzzle {
+        let figures = this.customFigures.concat([
+            this.borderFigure,
+            this.wrapFigure
+        ]);
+
+
         for (let figure of [this.borderFigure, this.wrapFigure]) {
             for (let puzzle of figure.getPuzzles()) {
                 if (((puzzle.getCell()) === cell)
@@ -82,7 +89,15 @@ class Scene {
 
     getAllPuzzles(): IPuzzle[] {
         let puzzles = [];
-        for (let figure of [this.shadowFigure, this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
+
+        let figures = this.customFigures.concat([
+            this.shadowFigure,
+            this.interactiveFigure,
+            this.borderFigure,
+            this.wrapFigure
+        ]);
+
+        for (let figure of figures) {
             for (let puzzle of figure.getPuzzles()) {
                 puzzles.push(puzzle);
             }
@@ -100,11 +115,23 @@ class Scene {
         return arr;
     }
 
+    addCustomFigure(figure: IFigure) {
+        this.customFigures.push(figure)
+    }
+
     render() {
         if (this.pause) {
             return;
         }
-        for (let figure of [this.shadowFigure, this.interactiveFigure, this.borderFigure, this.wrapFigure]) {
+
+        let figures = this.customFigures.concat([
+            this.shadowFigure,
+            this.interactiveFigure,
+            this.borderFigure,
+            this.wrapFigure
+        ]);
+
+        for (let figure of figures) {
             figure.render();
         }
     }

@@ -59,8 +59,13 @@ class WrapFigure extends Figure {
             x = figure.getCell();
             for (let puzzle of row) {
                 if (typeof puzzle !== "number") {
-                    puzzle.setFigure(this);
-                    shape[y - 1][x - 1] = puzzle;
+                    if (shape[y - 1][x - 1]) {
+                        puzzle.clearGraphics();
+                        console.log('ololo')
+                    } else {
+                        puzzle.setFigure(this);
+                        shape[y - 1][x - 1] = puzzle;
+                    }
                 }
                 x += 1;
             }
@@ -87,7 +92,7 @@ class WrapFigure extends Figure {
         Promise.all(promises).then(() => {
             removeList.map(p => p.remove());
             this.updateShape(shape);
-            this.getScene().initInteractiveFigure();
+            figure.onImpact();
         });
 
     }

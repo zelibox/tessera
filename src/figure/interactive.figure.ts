@@ -1,10 +1,17 @@
 ///<reference path="basic.figure.ts"/>
 abstract class InteractiveFigure extends Figure {
     private renderStartDate: Date = null;
-    private cell = null;
-    private row = null;
+    protected cell = null;
+    protected row = null;
     private enableMove = true;
 
+    onImpact(): void {
+        this.getScene().initInteractiveFigure();
+    }
+
+    getSpeed() {
+        return 500;
+    }
 
     constructor(scene: Scene) {
         super(scene);
@@ -30,7 +37,7 @@ abstract class InteractiveFigure extends Figure {
         if (!this.renderStartDate) {
             this.renderStartDate = new Date();
         }
-        if (((new Date().getTime() - this.renderStartDate.getTime()) >= 500)) {
+        if (((new Date().getTime() - this.renderStartDate.getTime()) >= this.getSpeed())) {
             this.renderStartDate = new Date();
             this.move("down")
         }

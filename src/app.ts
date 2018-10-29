@@ -20,10 +20,14 @@ $(function () {
             puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
         }
         scene.puzzleSize = puzzleSize;
+        // for (var i = app.stage.children.length - 1; i >= 0; i--) {	app.stage.removeChild(app.stage.children[i]);};
         scene.getAllPuzzles().forEach(p => p.clearGraphics());
-
+        app.stage.removeChildren();
         app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
+        console.log(app, 'remove')
     }
+
+    // setInterval(resize, 5000); // TODO
 
     resize();
 
