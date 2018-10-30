@@ -1,6 +1,7 @@
 class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
     onImpact(): void {
-
+        this.getScene().removeCustomFigure(this);
+        this.updateShape([]);
     }
     
     public cell;

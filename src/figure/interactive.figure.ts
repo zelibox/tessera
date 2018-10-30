@@ -6,6 +6,7 @@ abstract class InteractiveFigure extends Figure {
     private enableMove = true;
 
     onImpact(): void {
+        this.updateShape([]);
         this.getScene().initInteractiveFigure();
     }
 

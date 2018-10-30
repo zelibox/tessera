@@ -12,6 +12,7 @@ $(function () {
 
     $('.wrap').append(app.view);
     window.addEventListener('resize', resize);
+    console.log(scene);
 
     function resize() {
         let puzzleSize = window.innerWidth / scene.cols;
@@ -24,10 +25,9 @@ $(function () {
         scene.getAllPuzzles().forEach(p => p.clearGraphics());
         app.stage.removeChildren();
         app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
-        console.log(app, 'remove')
     }
 
-    // setInterval(resize, 5000); // TODO
+    setInterval(resize, 60000);
 
     resize();
 

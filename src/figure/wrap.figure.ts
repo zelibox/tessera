@@ -60,8 +60,7 @@ class WrapFigure extends Figure {
             for (let puzzle of row) {
                 if (typeof puzzle !== "number") {
                     if (shape[y - 1][x - 1]) {
-                        puzzle.clearGraphics();
-                        console.log('ololo')
+                        puzzle.remove();
                     } else {
                         puzzle.setFigure(this);
                         shape[y - 1][x - 1] = puzzle;

@@ -9,6 +9,7 @@ $(function () {
     const scene = new Scene(app);
     $('.wrap').append(app.view);
     window.addEventListener('resize', resize);
+    console.log(scene);
     function resize() {
         let puzzleSize = window.innerWidth / scene.cols;
         let toolbarHeight = $('.toolbar').height();
@@ -20,9 +21,8 @@ $(function () {
         scene.getAllPuzzles().forEach(p => p.clearGraphics());
         app.stage.removeChildren();
         app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
-        console.log(app, 'remove');
     }
-    // setInterval(resize, 5000); // TODO
+    setInterval(resize, 60000);
     resize();
     app.ticker.add(function () {
         scene.render();
@@ -147,7 +147,11 @@ class Scene {
         return this.app;
     }
     initInteractiveFigure() {
-        if ((Math.floor(Math.random() * (10 - 1 + 1)) + 1) == 100) {
+        let random = (Math.floor(Math.random() * (15 - 1 + 1)) + 1);
+        if (random == 11) {
+            this.interactiveFigure = new ThiefMagicFigure(this);
+        }
+        else if (random == 12) {
             this.interactiveFigure = new RainMagicFigure(this);
         }
         else {
@@ -220,6 +224,9 @@ class Scene {
     }
     addCustomFigure(figure) {
         this.customFigures.push(figure);
+    }
+    removeCustomFigure(figure) {
+        this.customFigures.splice(this.customFigures.indexOf(figure), 1);
     }
     render() {
         if (this.pause) {
@@ -362,6 +369,7 @@ class InteractiveFigure extends Figure {
         this.enableMove = true;
     }
     onImpact() {
+        this.updateShape([]);
         this.getScene().initInteractiveFigure();
     }
     getSpeed() {
@@ -583,6 +591,39 @@ class RainMagicFigure extends InteractiveFigure {
         ];
     }
 }
+class ThiefMagicFigure extends InteractiveFigure {
+    constructor(scene) {
+        super(scene);
+        this.insertPuzzles([new ThiefMagicPuzzle()]);
+    }
+    initShape() {
+        return [
+            [1],
+        ];
+    }
+    onImpact() {
+        if (this.getPuzzles().length) {
+            let puzzle = this.getPuzzles()[0];
+            if (puzzle instanceof ThiefMagicPuzzle) {
+                puzzle.setClassicGraphic();
+            }
+        }
+        super.onImpact();
+    }
+    move(side) {
+        let r = super.move(side);
+        if (side === 'down' && r) {
+            let puzzles = this.getScene().getWrapFigure().getPuzzles();
+            if (puzzles.length > 3) {
+                let puzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+                puzzle.createAnimation(ScalePuzzleAnimation, { x: 0, y: 0, alpha: 0 }).then(() => {
+                    puzzle.remove();
+                });
+            }
+        }
+        return r;
+    }
+}
 // LeftWind -- move all to right
 // RightWind  -- move all to left
 // TopWind -- move all to down
@@ -721,8 +762,7 @@ class WrapFigure extends Figure {
             for (let puzzle of row) {
                 if (typeof puzzle !== "number") {
                     if (shape[y - 1][x - 1]) {
-                        puzzle.clearGraphics();
-                        console.log('ololo');
+                        puzzle.remove();
                     }
                     else {
                         puzzle.setFigure(this);
@@ -993,6 +1033,8 @@ class ScalePuzzleAnimation extends PuzzleAnimation {
 }
 class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
     onImpact() {
+        this.getScene().removeCustomFigure(this);
+        this.updateShape([]);
     }
     getSpeed() {
         return 150;
@@ -1073,6 +1115,67 @@ class RainMagicPuzzle extends Puzzle {
         this.graphics.pivot.set(width / 2, height / 2);
         app.stage.addChild(sprite);
         return sprite;
+    }
+}
+class ThiefMagicPuzzle extends Puzzle {
+    constructor() {
+        super(...arguments);
+        this.classicMode = false;
+    }
+    getColor() {
+        return 0x00adb5;
+    }
+    initGraphics() {
+        if (this.classicMode) {
+            return super.initGraphics();
+        }
+        let width = this.getFigure().getScene().puzzleSize - 1;
+        let height = this.getFigure().getScene().puzzleSize - 1;
+        let app = this.getFigure().getScene().getApp();
+        let rootGraphics = new PIXI.Graphics();
+        rootGraphics.lineStyle(0);
+        rootGraphics.beginFill(this.getColor(), 1);
+        rootGraphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        rootGraphics.endFill();
+        rootGraphics.pivot.set(width / 2, height / 2);
+        let rWidth = Math.floor(width / 2);
+        let graphics1 = new PIXI.Graphics();
+        graphics1.lineStyle(0);
+        graphics1.beginFill(0x222831, 1);
+        graphics1.drawRoundedRect(0, 0, rWidth, rWidth, Math.floor(rWidth * 0.3));
+        graphics1.endFill();
+        graphics1.position.x = rWidth;
+        graphics1.position.y = rWidth;
+        graphics1.pivot.x = rWidth / 2;
+        graphics1.pivot.y = rWidth / 2;
+        rootGraphics.addChild(graphics1);
+        // graphics1.position.x = rWidth;
+        // graphics1.position.y = rWidth * -1;
+        let textures = [rootGraphics.generateCanvasTexture()];
+        for (let i = 1; i > 0.3; i -= 0.05) {
+            graphics1.scale.x = i;
+            graphics1.scale.y = i;
+            textures.push(rootGraphics.generateCanvasTexture());
+        }
+        for (let i = 0.3; i < 1; i += 0.05) {
+            graphics1.scale.x = i;
+            graphics1.scale.y = i;
+            textures.push(rootGraphics.generateCanvasTexture());
+        }
+        let sprite = new PIXI.extras.AnimatedSprite(textures, true);
+        sprite.animationSpeed = 0.5;
+        sprite.play();
+        this.graphics = sprite;
+        this.graphics.pivot.set(width / 2, height / 2);
+        app.stage.addChild(this.graphics);
+        return this.graphics;
+    }
+    setClassicGraphic() {
+        if (this.graphics) {
+            this.classicMode = true;
+            this.clearGraphics();
+            this.initGraphics();
+        }
     }
 }
 

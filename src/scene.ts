@@ -29,7 +29,10 @@ class Scene {
 
 
     initInteractiveFigure() {
-        if ((Math.floor(Math.random() * (10 - 1 + 1)) + 1) == 100) {
+        let random = (Math.floor(Math.random() * (15 - 1 + 1)) + 1);
+        if (random == 11) {
+            this.interactiveFigure = new ThiefMagicFigure(this);
+        } else if (random == 12) {
             this.interactiveFigure = new RainMagicFigure(this);
         } else {
             let figures = [
@@ -117,6 +120,10 @@ class Scene {
 
     addCustomFigure(figure: IFigure) {
         this.customFigures.push(figure)
+    }
+
+    removeCustomFigure(figure: IFigure) {
+        this.customFigures.splice(this.customFigures.indexOf(figure), 1);
     }
 
     render() {
