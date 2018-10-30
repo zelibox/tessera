@@ -52,8 +52,9 @@ class Scene {
             this.interactiveFigure.insertPuzzles(
                 this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle)
             );
-            this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure)
         }
+
+        this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure)
     }
 
     public getInteractiveFigure() {

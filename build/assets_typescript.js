@@ -170,8 +170,8 @@ class Scene {
             ];
             this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
             this.interactiveFigure.insertPuzzles(this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle));
-            this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure);
         }
+        this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure);
     }
     getInteractiveFigure() {
         return this.interactiveFigure;
