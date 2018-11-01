@@ -4,9 +4,24 @@ class ShadowPuzzle extends Puzzle {
     }
 
     initGraphics(): PIXI.Container {
-        let g = super.initGraphics();
-        g.alpha = 0;
-        return g;
+        let width = this.getFigure().getScene().puzzleSize - 1;
+        let height = this.getFigure().getScene().puzzleSize - 1;
+
+        let app = this.getFigure().getScene().getApp();
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile009.png');
+        graphics.width = width;
+        graphics.height = height;
+
+        graphics.anchor.set(0.5);
+        this.graphics = graphics;
+        this.graphics.alpha = 0;
+        app.stage.addChild(this.graphics);
+        return this.graphics;
     }
 
     setAlpha(alpha) {
@@ -14,4 +29,6 @@ class ShadowPuzzle extends Puzzle {
             this.graphics.alpha = alpha;
         }
     }
+
+
 }

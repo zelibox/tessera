@@ -60,7 +60,7 @@ class ShadowFigure extends Figure {
 
         this.getPuzzles().forEach(puzzle => {
             if (puzzle instanceof ShadowPuzzle) {
-                puzzle.setAlpha(0.3 / yIndex * (yIndex - this.latestFigure.getRow()))
+                puzzle.setAlpha(0.6 / yIndex * (yIndex - this.latestFigure.getRow()))
             }
         });
 

@@ -700,7 +700,7 @@ class ShadowFigure extends Figure {
         yIndex -= 1;
         this.getPuzzles().forEach(puzzle => {
             if (puzzle instanceof ShadowPuzzle) {
-                puzzle.setAlpha(0.3 / yIndex * (yIndex - this.latestFigure.getRow()));
+                puzzle.setAlpha(0.6 / yIndex * (yIndex - this.latestFigure.getRow()));
             }
         });
         return yIndex;
@@ -869,12 +869,15 @@ class Puzzle {
         let width = this.figure.getScene().puzzleSize - 1;
         let height = this.figure.getScene().puzzleSize - 1;
         let app = this.figure.getScene().getApp();
-        let graphics = new PIXI.Graphics();
-        graphics.lineStyle(0);
-        graphics.beginFill(this.getColor(), 1);
-        graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        graphics.endFill();
-        graphics.pivot.set(width / 2, height / 2);
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile007.png');
+        graphics.width = width;
+        graphics.height = height;
+        graphics.anchor.set(0.5);
         this.graphics = graphics;
         app.stage.addChild(this.graphics);
         return this.graphics;
@@ -946,15 +949,47 @@ class BorderPuzzle extends Puzzle {
     getColor() {
         return 0x393e46;
     }
+    initGraphics() {
+        let width = this.getFigure().getScene().puzzleSize - 1;
+        let height = this.getFigure().getScene().puzzleSize - 1;
+        let app = this.getFigure().getScene().getApp();
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile041.png');
+        graphics.position.x = 0;
+        graphics.position.y = 0;
+        graphics.width = width;
+        graphics.height = height;
+        graphics.anchor.set(0.5);
+        this.graphics = graphics;
+        app.stage.addChild(this.graphics);
+        return this.graphics;
+    }
 }
 class ShadowPuzzle extends Puzzle {
     getColor() {
         return 0x00adb5;
     }
     initGraphics() {
-        let g = super.initGraphics();
-        g.alpha = 0;
-        return g;
+        let width = this.getFigure().getScene().puzzleSize - 1;
+        let height = this.getFigure().getScene().puzzleSize - 1;
+        let app = this.getFigure().getScene().getApp();
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile009.png');
+        graphics.width = width;
+        graphics.height = height;
+        graphics.anchor.set(0.5);
+        this.graphics = graphics;
+        this.graphics.alpha = 0;
+        app.stage.addChild(this.graphics);
+        return this.graphics;
     }
     setAlpha(alpha) {
         if (this.graphics) {
@@ -1068,53 +1103,24 @@ class RainMagicPuzzle extends Puzzle {
         super.remove();
     }
     initGraphics() {
+        //
         let width = this.getFigure().getScene().puzzleSize - 1;
         let height = this.getFigure().getScene().puzzleSize - 1;
         let app = this.getFigure().getScene().getApp();
-        let rootGraphics = new PIXI.Graphics();
-        rootGraphics.drawRect(0, 0, width, height);
-        let rWidth = Math.floor(width / 2);
-        let graphics1 = new PIXI.Graphics();
-        graphics1.lineStyle(0);
-        graphics1.beginFill(this.getColor(), 1);
-        graphics1.drawRoundedRect(0, 0, rWidth, rWidth, Math.floor(rWidth * 0.3));
-        graphics1.endFill();
-        let graphics3 = new PIXI.Graphics();
-        graphics3.lineStyle(0);
-        graphics3.beginFill(this.getColor(), 1);
-        graphics3.drawRoundedRect(rWidth + 1, rWidth + 1, rWidth, rWidth, Math.floor(rWidth * 0.3));
-        graphics3.endFill();
-        rootGraphics.addChild(graphics1);
-        rootGraphics.addChild(graphics3);
-        let textures = [rootGraphics.generateCanvasTexture()];
-        let max = rWidth + 1;
-        for (let i = 0; i < max; i++) {
-            graphics1.position.x += 1;
-            graphics3.position.x -= 1;
-            textures.push(rootGraphics.generateCanvasTexture());
-        }
-        for (let i = 0; i < max; i++) {
-            graphics1.position.y += 1;
-            graphics3.position.y -= 1;
-            textures.push(rootGraphics.generateCanvasTexture());
-        }
-        for (let i = 0; i < max; i++) {
-            graphics1.position.x -= 1;
-            graphics3.position.x += 1;
-            textures.push(rootGraphics.generateCanvasTexture());
-        }
-        for (let i = 0; i < max; i++) {
-            graphics1.position.y -= 1;
-            graphics3.position.y += 1;
-            textures.push(rootGraphics.generateCanvasTexture());
-        }
-        let sprite = new PIXI.extras.AnimatedSprite(textures, true);
-        sprite.animationSpeed = 0.5;
-        sprite.play();
-        this.graphics = sprite;
-        this.graphics.pivot.set(width / 2, height / 2);
-        app.stage.addChild(sprite);
-        return sprite;
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+        let graphics = PIXI.Sprite.fromImage('assets/alienPink_round.png');
+        graphics.position.x = 0;
+        graphics.position.y = 0;
+        graphics.width = width;
+        graphics.height = height;
+        graphics.anchor.set(0.5);
+        this.graphics = graphics;
+        app.stage.addChild(this.graphics);
+        return this.graphics;
     }
 }
 class ThiefMagicPuzzle extends Puzzle {
@@ -1132,41 +1138,18 @@ class ThiefMagicPuzzle extends Puzzle {
         let width = this.getFigure().getScene().puzzleSize - 1;
         let height = this.getFigure().getScene().puzzleSize - 1;
         let app = this.getFigure().getScene().getApp();
-        let rootGraphics = new PIXI.Graphics();
-        rootGraphics.lineStyle(0);
-        rootGraphics.beginFill(this.getColor(), 1);
-        rootGraphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        rootGraphics.endFill();
-        rootGraphics.pivot.set(width / 2, height / 2);
-        let rWidth = Math.floor(width / 2);
-        let graphics1 = new PIXI.Graphics();
-        graphics1.lineStyle(0);
-        graphics1.beginFill(0x222831, 1);
-        graphics1.drawRoundedRect(0, 0, rWidth, rWidth, Math.floor(rWidth * 0.3));
-        graphics1.endFill();
-        graphics1.position.x = rWidth;
-        graphics1.position.y = rWidth;
-        graphics1.pivot.x = rWidth / 2;
-        graphics1.pivot.y = rWidth / 2;
-        rootGraphics.addChild(graphics1);
-        // graphics1.position.x = rWidth;
-        // graphics1.position.y = rWidth * -1;
-        let textures = [rootGraphics.generateCanvasTexture()];
-        for (let i = 1; i > 0.3; i -= 0.05) {
-            graphics1.scale.x = i;
-            graphics1.scale.y = i;
-            textures.push(rootGraphics.generateCanvasTexture());
-        }
-        for (let i = 0.3; i < 1; i += 0.05) {
-            graphics1.scale.x = i;
-            graphics1.scale.y = i;
-            textures.push(rootGraphics.generateCanvasTexture());
-        }
-        let sprite = new PIXI.extras.AnimatedSprite(textures, true);
-        sprite.animationSpeed = 0.5;
-        sprite.play();
-        this.graphics = sprite;
-        this.graphics.pivot.set(width / 2, height / 2);
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+        let graphics = PIXI.Sprite.fromImage('assets/alienBlue_round.png');
+        graphics.position.x = 0;
+        graphics.position.y = 0;
+        graphics.width = width;
+        graphics.height = height;
+        graphics.anchor.set(0.5);
+        this.graphics = graphics;
         app.stage.addChild(this.graphics);
         return this.graphics;
     }

@@ -113,12 +113,17 @@ abstract class Puzzle implements IPuzzle {
         let height = this.figure.getScene().puzzleSize - 1;
 
         let app = this.figure.getScene().getApp();
-        let graphics = new PIXI.Graphics();
-        graphics.lineStyle(0);
-        graphics.beginFill(this.getColor(), 1);
-        graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        graphics.endFill();
-        graphics.pivot.set(width/2, height/2);
+        // let graphics = new PIXI.Graphics();
+        // graphics.lineStyle(0);
+        // graphics.beginFill(this.getColor(), 1);
+        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
+        // graphics.endFill();
+
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile007.png');
+        graphics.width = width;
+        graphics.height = height;
+
+        graphics.anchor.set(0.5);
         this.graphics = graphics;
         app.stage.addChild(this.graphics);
         return this.graphics;
