@@ -1,5 +1,5 @@
 class SimplePuzzle extends Puzzle {
-    getColor(): number {
-        return 0x00adb5;
+    getTile() {
+        return this.getFigure().getScene().assets.simplePuzzle.green
     }
 }

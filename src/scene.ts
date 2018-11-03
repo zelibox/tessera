@@ -9,6 +9,24 @@ class Scene {
     private pause: boolean = false;
     private customFigures: IFigure[] = [];
 
+    public assets = {
+        simplePuzzle: {
+            blue: 'assets/puzzle/simple/blue.png',
+            green: 'assets/puzzle/simple/green.png',
+            red: 'assets/puzzle/simple/red.png',
+            yellow: 'assets/puzzle/simple/yellow.png',
+        },
+        borderPuzzle: {
+            left: 'assets/puzzle/border/left.png',
+            mid: 'assets/puzzle/border/mid.png',
+            right: 'assets/puzzle/border/right.png',
+        },
+        magicPuzzle: {
+            rain: 'assets/puzzle/magic/rain.png',
+            thief: 'assets/puzzle/magic/thief.png',
+        }
+    };
+
     constructor(private app: PIXI.Application) {
         this.wrapFigure = new WrapFigure(this);
 
@@ -26,7 +44,17 @@ class Scene {
         return this.app;
     }
 
-
+    getAllAssets() {
+        let assets = [];
+        for (let assetType in this.assets) {
+            for(let assetTypeKey in this.assets[assetType]) {
+                if (this.assets[assetType].hasOwnProperty(assetTypeKey)) {
+                    assets.push(this.assets[assetType][assetTypeKey]);
+                }
+            }
+        } 
+        return assets;
+    }
 
     initInteractiveFigure() {
         let random = (Math.floor(Math.random() * (15 - 1 + 1)) + 1);
@@ -144,7 +172,7 @@ class Scene {
         }
     }
 
-    setPause(pause:boolean){
+    setPause(pause: boolean) {
         this.pause = pause;
     }
 }

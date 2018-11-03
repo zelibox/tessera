@@ -3,7 +3,7 @@ class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
         this.getScene().removeCustomFigure(this);
         this.updateShape([]);
     }
-    
+
     public cell;
     public row;
 
@@ -12,9 +12,12 @@ class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
     }
 }
 
-class RainItemPuzzle extends Puzzle{
-    getColor(): number {
-        return 0x7acfdf;
+class RainItemPuzzle extends Puzzle {
+    getTile(): string {
+        let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
+        return this.getFigure().getScene().assets.simplePuzzle[
+            keys[Math.floor(Math.random() * keys.length)]
+            ];
     }
 
 }
@@ -22,22 +25,22 @@ class RainItemPuzzle extends Puzzle{
 class RainMagicPuzzle extends Puzzle {
     animationTime = 2000;
 
-    getColor(): number {
-        return 0x7acfdf;
+    getTile(): string {
+        return this.getFigure().getScene().assets.magicPuzzle.rain;
     }
 
 
     remove(): void {
         for (let r = 1; r <= Math.floor(this.getFigure().getScene().rows / 3); r++) {
-           let cell = (Math.floor(Math.random() * ((this.getFigure().getScene().cols - 2) - 1 + 1)) + 1);
+            let cell = (Math.floor(Math.random() * ((this.getFigure().getScene().cols - 2) - 1 + 1)) + 1);
             let block = this.getFigure().getScene().getPuzzle(cell, r);
-           if (!block) {
-               let figure = new RainItemFigureMagicPuzzle(this.getFigure().getScene());
-               figure.cell = cell;
-               figure.row = r;
-               figure.insertPuzzles([new RainItemPuzzle()]);
-               this.getFigure().getScene().addCustomFigure(figure);
-           }
+            if (!block) {
+                let figure = new RainItemFigureMagicPuzzle(this.getFigure().getScene());
+                figure.cell = cell;
+                figure.row = r;
+                figure.insertPuzzles([new RainItemPuzzle()]);
+                this.getFigure().getScene().addCustomFigure(figure);
+            }
         }
         super.remove();
     }
@@ -55,7 +58,7 @@ class RainMagicPuzzle extends Puzzle {
         // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         // graphics.endFill();
 
-        let graphics = PIXI.Sprite.fromImage('assets/alienPink_round.png');
+        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_pink.png');
         graphics.position.x = 0;
         graphics.position.y = 0;
         graphics.width = width;

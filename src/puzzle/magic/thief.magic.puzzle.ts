@@ -1,7 +1,7 @@
-class ThiefMagicPuzzle extends Puzzle{
+class ThiefMagicPuzzle extends Puzzle {
     private classicMode: boolean = false;
-    getColor(): number {
-        return 0x00adb5;
+    getTile(): string {
+        return this.getFigure().getScene().assets.magicPuzzle.thief;
     }
 
     initGraphics(): PIXI.Container {
@@ -12,13 +12,8 @@ class ThiefMagicPuzzle extends Puzzle{
         let height = this.getFigure().getScene().puzzleSize - 1;
 
         let app = this.getFigure().getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
 
-        let graphics = PIXI.Sprite.fromImage('assets/alienBlue_round.png');
+        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_beige.png');
         graphics.position.x = 0;
         graphics.position.y = 0;
         graphics.width = width;

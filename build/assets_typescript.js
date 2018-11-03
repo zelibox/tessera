@@ -7,126 +7,134 @@ $(function () {
     });
     app.stage.interactive = true;
     const scene = new Scene(app);
-    $('.wrap').append(app.view);
-    window.addEventListener('resize', resize);
-    console.log(scene);
-    function resize() {
-        let puzzleSize = window.innerWidth / scene.cols;
-        let toolbarHeight = $('.toolbar').height();
-        if ((puzzleSize * scene.rows) > (window.innerHeight - toolbarHeight)) {
-            puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
-        }
-        scene.puzzleSize = puzzleSize;
-        // for (var i = app.stage.children.length - 1; i >= 0; i--) {	app.stage.removeChild(app.stage.children[i]);};
-        scene.getAllPuzzles().forEach(p => p.clearGraphics());
-        app.stage.removeChildren();
-        app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
-    }
-    setInterval(resize, 60000);
-    resize();
-    app.ticker.add(function () {
-        scene.render();
+    let loader = PIXI.loader;
+    loader.add(scene.getAllAssets());
+    loader.load();
+    loader.on('progress', () => {
+        // todo
+        console.log(loader.progress);
     });
-    // controller
-    let startX = 0;
-    let interval;
-    $(app.view)['swipe']({
-        swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
-            if (phase === 'start') {
-                if (event.pageX) {
-                    startX = event.pageX;
-                }
-                else {
-                    startX = event.touches[0].pageX;
-                }
+    loader.on('complete', () => {
+        $('.wrap').append(app.view);
+        window.addEventListener('resize', resize);
+        function resize() {
+            let puzzleSize = window.innerWidth / scene.cols;
+            let toolbarHeight = $('.toolbar').height() + $('.footer').height();
+            if ((puzzleSize * scene.rows) > (window.innerHeight - toolbarHeight)) {
+                puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
             }
-            if (phase === 'cancel' && distance <= scene.puzzleSize) {
-                if (startX > (window.innerWidth / 2)) {
-                    scene.getInteractiveFigure().move('right');
-                }
-                else {
-                    scene.getInteractiveFigure().move('left');
-                }
-            }
-        },
-        swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
-            if (duration < 350) {
-                if (direction == 'left') { // left
-                    while (scene.getInteractiveFigure().move('left')) {
+            scene.puzzleSize = puzzleSize;
+            // for (var i = app.stage.children.length - 1; i >= 0; i--) {	app.stage.removeChild(app.stage.children[i]);};
+            scene.getAllPuzzles().forEach(p => p.clearGraphics());
+            app.stage.removeChildren();
+            app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
+        }
+        setInterval(resize, 60000);
+        resize();
+        app.ticker.add(function () {
+            scene.render();
+        });
+        // controller
+        let startX = 0;
+        let interval;
+        $(app.view)['swipe']({
+            swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+                if (phase === 'start') {
+                    if (event.pageX) {
+                        startX = event.pageX;
+                    }
+                    else {
+                        startX = event.touches[0].pageX;
                     }
                 }
-                else if (direction == 'right') { // right
-                    while (scene.getInteractiveFigure().move('right')) {
+                if (phase === 'cancel' && distance <= scene.puzzleSize) {
+                    if (startX > (window.innerWidth / 2)) {
+                        scene.getInteractiveFigure().move('right');
+                    }
+                    else {
+                        scene.getInteractiveFigure().move('left');
                     }
                 }
-                if (direction == 'up') { // up
-                    scene.getInteractiveFigure().rotate('right');
-                }
-                else if (direction == 'down') { // down
-                    while (scene.getInteractiveFigure().move('down')) {
+            },
+            swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
+                if (duration < 350) {
+                    if (direction == 'left') { // left
+                        while (scene.getInteractiveFigure().move('left')) {
+                        }
+                    }
+                    else if (direction == 'right') { // right
+                        while (scene.getInteractiveFigure().move('right')) {
+                        }
+                    }
+                    if (direction == 'up') { // up
+                        scene.getInteractiveFigure().rotate('right');
+                    }
+                    else if (direction == 'down') { // down
+                        while (scene.getInteractiveFigure().move('down')) {
+                        }
                     }
                 }
             }
-        }
-    });
-    $("body").on('keydown', function (e) {
-        if (e.keyCode == 37) { // left
-            scene.getInteractiveFigure().move('left');
-        }
-        else if (e.keyCode == 39) { // right
-            scene.getInteractiveFigure().move('right');
-        }
-        else if (e.keyCode == 38) { // up
-            scene.getInteractiveFigure().rotate('right');
-        }
-        else if (e.keyCode == 40) { // down
-            scene.getInteractiveFigure().move('down');
-        }
-    });
-    let pauseElement = $('.pause');
-    pauseElement.on('click', function () {
-        if (pauseElement.hasClass('active')) {
-            pauseElement.removeClass('active');
-            scene.setPause(false);
-        }
-        else {
-            pauseElement.addClass('active');
-            scene.setPause(true);
-        }
-    });
-    let fullScreenToggleElement = $('.full-screen-toggle');
-    fullScreenToggleElement.on('click', function () {
-        let elem = document.documentElement;
-        if (fullScreenToggleElement.hasClass('active')) {
-            fullScreenToggleElement.removeClass('active');
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
+        });
+        $("body").on('keydown', function (e) {
+            if (e.keyCode == 37) { // left
+                scene.getInteractiveFigure().move('left');
             }
-            else if (document['mozCancelFullScreen']) {
-                document['mozCancelFullScreen']();
+            else if (e.keyCode == 39) { // right
+                scene.getInteractiveFigure().move('right');
             }
-            else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
+            else if (e.keyCode == 38) { // up
+                scene.getInteractiveFigure().rotate('right');
             }
-            else if (document['msExitFullscreen']) {
-                document['msExitFullscreen']();
+            else if (e.keyCode == 40) { // down
+                scene.getInteractiveFigure().move('down');
             }
-        }
-        else {
-            $('.full-screen-toggle').addClass('active');
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
+        });
+        let pauseElement = $('.pause');
+        pauseElement.on('click', function () {
+            if (pauseElement.hasClass('active')) {
+                pauseElement.removeClass('active');
+                scene.setPause(false);
             }
-            else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
+            else {
+                pauseElement.addClass('active');
+                scene.setPause(true);
             }
-            else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
+        });
+        let fullScreenToggleElement = $('.full-screen-toggle');
+        fullScreenToggleElement.on('click', function () {
+            let elem = document.documentElement;
+            if (fullScreenToggleElement.hasClass('active')) {
+                fullScreenToggleElement.removeClass('active');
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                else if (document['mozCancelFullScreen']) {
+                    document['mozCancelFullScreen']();
+                }
+                else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                else if (document['msExitFullscreen']) {
+                    document['msExitFullscreen']();
+                }
             }
-            else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
+            else {
+                $('.full-screen-toggle').addClass('active');
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                }
+                else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                }
+                else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                }
+                else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
             }
-        }
+        });
     });
 });
 class Scene {
@@ -137,6 +145,23 @@ class Scene {
         this.cols = 12;
         this.pause = false;
         this.customFigures = [];
+        this.assets = {
+            simplePuzzle: {
+                blue: 'assets/puzzle/simple/blue.png',
+                green: 'assets/puzzle/simple/green.png',
+                red: 'assets/puzzle/simple/red.png',
+                yellow: 'assets/puzzle/simple/yellow.png',
+            },
+            borderPuzzle: {
+                left: 'assets/puzzle/border/left.png',
+                mid: 'assets/puzzle/border/mid.png',
+                right: 'assets/puzzle/border/right.png',
+            },
+            magicPuzzle: {
+                rain: 'assets/puzzle/magic/rain.png',
+                thief: 'assets/puzzle/magic/thief.png',
+            }
+        };
         this.wrapFigure = new WrapFigure(this);
         this.borderFigure = new BorderFigure(this);
         this.borderFigure.insertPuzzles(this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle));
@@ -145,6 +170,17 @@ class Scene {
     }
     getApp() {
         return this.app;
+    }
+    getAllAssets() {
+        let assets = [];
+        for (let assetType in this.assets) {
+            for (let assetTypeKey in this.assets[assetType]) {
+                if (this.assets[assetType].hasOwnProperty(assetTypeKey)) {
+                    assets.push(this.assets[assetType][assetTypeKey]);
+                }
+            }
+        }
+        return assets;
     }
     initInteractiveFigure() {
         let random = (Math.floor(Math.random() * (15 - 1 + 1)) + 1);
@@ -869,33 +905,13 @@ class Puzzle {
         let width = this.figure.getScene().puzzleSize - 1;
         let height = this.figure.getScene().puzzleSize - 1;
         let app = this.figure.getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile007.png');
+        let graphics = PIXI.Sprite.fromImage(this.getTile());
         graphics.width = width;
         graphics.height = height;
         graphics.anchor.set(0.5);
         this.graphics = graphics;
         app.stage.addChild(this.graphics);
         return this.graphics;
-        // let text = new PIXI.Text(
-        //     '1',
-        //     {
-        //         fontFamily : 'monospace',
-        //         fontSize: this.getFigure().getScene().puzzleSize / 2,
-        //         lineHeight: this.getFigure().getScene().puzzleSize / 2,
-        //         fill : 0x393e46,
-        //         align : 'center'
-        //     });
-        //
-        // text.anchor.x =0.5;
-        // text.anchor.y =0.5;
-        // text.y = this.getFigure().getScene().puzzleSize / 2;
-        // text.x = this.getFigure().getScene().puzzleSize / 2;
-        // this.graphics.addChild(text);
     }
     getGraphics() {
         if (!this.graphics) {
@@ -950,7 +966,17 @@ class BorderPuzzle extends Puzzle {
         return 0x393e46;
     }
     initGraphics() {
-        let width = this.getFigure().getScene().puzzleSize - 1;
+        let img = '';
+        if (this.getRow() == 21 && this.getCell() == 1) {
+            img = 'stoneCliff_left.png';
+        }
+        else if (this.getRow() == 21 && this.getCell() == 10) {
+            img = 'stoneCliff_right.png';
+        }
+        else if (this.getRow() == 21 && this.getCell() > 1 && this.getCell() < 10) {
+            img = 'stoneMid.png';
+        }
+        let width = this.getFigure().getScene().puzzleSize;
         let height = this.getFigure().getScene().puzzleSize - 1;
         let app = this.getFigure().getScene().getApp();
         // let graphics = new PIXI.Graphics();
@@ -958,7 +984,7 @@ class BorderPuzzle extends Puzzle {
         // graphics.beginFill(this.getColor(), 1);
         // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile041.png');
+        let graphics = PIXI.Sprite.fromImage('assets/' + img);
         graphics.position.x = 0;
         graphics.position.y = 0;
         graphics.width = width;
@@ -982,7 +1008,7 @@ class ShadowPuzzle extends Puzzle {
         // graphics.beginFill(this.getColor(), 1);
         // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile009.png');
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile042.png');
         graphics.width = width;
         graphics.height = height;
         graphics.anchor.set(0.5);
@@ -998,8 +1024,8 @@ class ShadowPuzzle extends Puzzle {
     }
 }
 class SimplePuzzle extends Puzzle {
-    getColor() {
-        return 0x00adb5;
+    getTile() {
+        return this.getFigure().getScene().assets.simplePuzzle.green;
     }
 }
 class PuzzleAnimation {
@@ -1076,8 +1102,9 @@ class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
     }
 }
 class RainItemPuzzle extends Puzzle {
-    getColor() {
-        return 0x7acfdf;
+    getTile() {
+        let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
+        return this.getFigure().getScene().assets.simplePuzzle[keys[Math.floor(Math.random() * keys.length)]];
     }
 }
 class RainMagicPuzzle extends Puzzle {
@@ -1085,8 +1112,8 @@ class RainMagicPuzzle extends Puzzle {
         super(...arguments);
         this.animationTime = 2000;
     }
-    getColor() {
-        return 0x7acfdf;
+    getTile() {
+        return this.getFigure().getScene().assets.magicPuzzle.rain;
     }
     remove() {
         for (let r = 1; r <= Math.floor(this.getFigure().getScene().rows / 3); r++) {
@@ -1112,7 +1139,7 @@ class RainMagicPuzzle extends Puzzle {
         // graphics.beginFill(this.getColor(), 1);
         // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/alienPink_round.png');
+        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_pink.png');
         graphics.position.x = 0;
         graphics.position.y = 0;
         graphics.width = width;
@@ -1128,8 +1155,8 @@ class ThiefMagicPuzzle extends Puzzle {
         super(...arguments);
         this.classicMode = false;
     }
-    getColor() {
-        return 0x00adb5;
+    getTile() {
+        return this.getFigure().getScene().assets.magicPuzzle.thief;
     }
     initGraphics() {
         if (this.classicMode) {
@@ -1138,12 +1165,7 @@ class ThiefMagicPuzzle extends Puzzle {
         let width = this.getFigure().getScene().puzzleSize - 1;
         let height = this.getFigure().getScene().puzzleSize - 1;
         let app = this.getFigure().getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/alienBlue_round.png');
+        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_beige.png');
         graphics.position.x = 0;
         graphics.position.y = 0;
         graphics.width = width;

@@ -1,17 +1,20 @@
 body {
   padding: 0;
   margin: 0;
-  background: url(../assets/blue_land.png);
+  background: #111;
   overflow: hidden;
   overscroll-behavior: contain; }
 
 .toolbar {
-  height: 50px; }
+  height: 30px; }
 
 .wrap {
   text-align: center; }
 
+.footer {
+  height: 30px; }
+
 :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen, :fullscreen {
-  background: url(../assets/blue_land.png); }
+  background: url(../assets/colored_land.png); }
 
 /*# sourceMappingURL=assets_scss.css.map */

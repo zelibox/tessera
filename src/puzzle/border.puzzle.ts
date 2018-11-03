@@ -5,7 +5,17 @@ class BorderPuzzle extends Puzzle {
 
 
     initGraphics(): PIXI.Container {
-        let width = this.getFigure().getScene().puzzleSize - 1;
+        let img = '';
+        if (this.getRow() == 21 && this.getCell() == 1) {
+            img = 'stoneCliff_left.png';
+        } else if (this.getRow() == 21 && this.getCell() == 10) {
+            img = 'stoneCliff_right.png';
+        } else if (this.getRow() == 21 && this.getCell() > 1 && this.getCell() < 10) {
+            img = 'stoneMid.png';
+        }
+
+
+        let width = this.getFigure().getScene().puzzleSize;
         let height = this.getFigure().getScene().puzzleSize - 1;
 
         let app = this.getFigure().getScene().getApp();
@@ -15,7 +25,7 @@ class BorderPuzzle extends Puzzle {
         // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         // graphics.endFill();
 
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile041.png');
+        let graphics = PIXI.Sprite.fromImage('assets/' + img);
         graphics.position.x = 0;
         graphics.position.y = 0;
         graphics.width = width;

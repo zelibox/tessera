@@ -15,9 +15,7 @@ interface IPuzzle {
 
     clearGraphics();
 
-    setPosition(x: number, y: number): void;
-
-    getColor(): number;
+    getTile(): string;
 
     createAnimation(animationType, params?: any);
 
@@ -39,7 +37,7 @@ abstract class Puzzle implements IPuzzle {
     protected graphics: PIXI.Container;
     private activeAnimationList:IPuzzleAnimation[] = [];
 
-    abstract getColor(): number
+    abstract getTile(): string
 
     getCell() {
         return this.cell;
@@ -113,35 +111,16 @@ abstract class Puzzle implements IPuzzle {
         let height = this.figure.getScene().puzzleSize - 1;
 
         let app = this.figure.getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
 
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile007.png');
+        let graphics = PIXI.Sprite.fromImage(this.getTile());
         graphics.width = width;
         graphics.height = height;
 
         graphics.anchor.set(0.5);
         this.graphics = graphics;
         app.stage.addChild(this.graphics);
+
         return this.graphics;
-        // let text = new PIXI.Text(
-        //     '1',
-        //     {
-        //         fontFamily : 'monospace',
-        //         fontSize: this.getFigure().getScene().puzzleSize / 2,
-        //         lineHeight: this.getFigure().getScene().puzzleSize / 2,
-        //         fill : 0x393e46,
-        //         align : 'center'
-        //     });
-        //
-        // text.anchor.x =0.5;
-        // text.anchor.y =0.5;
-        // text.y = this.getFigure().getScene().puzzleSize / 2;
-        // text.x = this.getFigure().getScene().puzzleSize / 2;
-        // this.graphics.addChild(text);
     }
 
     getGraphics() {

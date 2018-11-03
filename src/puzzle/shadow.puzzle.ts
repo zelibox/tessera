@@ -13,7 +13,7 @@ class ShadowPuzzle extends Puzzle {
         // graphics.beginFill(this.getColor(), 1);
         // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
         // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile009.png');
+        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile042.png');
         graphics.width = width;
         graphics.height = height;
 
