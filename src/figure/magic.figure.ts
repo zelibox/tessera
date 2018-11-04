@@ -38,7 +38,7 @@ class ThiefMagicFigure extends InteractiveFigure {
         let r = super.move(side);
         if (side === 'down' && r) {
             let puzzles = this.getScene().getWrapFigure().getPuzzles();
-            if (puzzles.length > 3) {
+            if (puzzles.length) {
                 let puzzle = puzzles[Math.floor(Math.random()*puzzles.length)];
 
                 puzzle.createAnimation(ScalePuzzleAnimation,

@@ -285,6 +285,70 @@ class Scene {
         this.pause = pause;
     }
 }
+class PuzzleAnimation {
+    constructor(puzzle) {
+        this.params = null;
+        this.puzzle = puzzle;
+    }
+    getParams() {
+        return this.params;
+    }
+    run(params = null) {
+        this.params = params;
+        this.startTime = new Date();
+        return new Promise((resolve) => {
+            this.onStart();
+            setTimeout(() => {
+                resolve(this);
+            }, this.getDuration());
+        }).then(() => {
+            this.onEnd();
+            this.getPuzzle().deactivateAnimation(this);
+        });
+    }
+    getProgress() {
+        return this.getDiff() / this.getDuration();
+    }
+    getDiff() {
+        return ((new Date()).getTime() - this.startTime.getTime());
+    }
+    getDuration() {
+        return 300;
+    }
+    getPuzzle() {
+        return this.puzzle;
+    }
+}
+///<reference path="basic.puzzle.animation.ts"/>
+class AlphaPuzzleAnimation extends PuzzleAnimation {
+    onStart() {
+        this.startAlpha = this.getPuzzle().getGraphics().alpha;
+    }
+    onEnd() {
+        this.getPuzzle().getGraphics().alpha = this.getParams();
+    }
+    animate() {
+        this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams() - this.startAlpha) * this.getProgress());
+    }
+}
+///<reference path="basic.puzzle.animation.ts"/>
+class ScalePuzzleAnimation extends PuzzleAnimation {
+    onStart() {
+        this.startX = this.getPuzzle().getGraphics().scale.x;
+        this.startY = this.getPuzzle().getGraphics().scale.y;
+        this.startAlpha = this.getPuzzle().getGraphics().alpha;
+    }
+    onEnd() {
+        this.getPuzzle().getGraphics().scale.x = this.getParams().x;
+        this.getPuzzle().getGraphics().scale.y = this.getParams().y;
+        this.getPuzzle().getGraphics().alpha = this.getParams().alpha;
+    }
+    animate() {
+        this.getPuzzle().getGraphics().scale.x = this.startX + ((this.getParams().x - this.startX) * this.getProgress());
+        this.getPuzzle().getGraphics().scale.y = this.startY + ((this.getParams().y - this.startY) * this.getProgress());
+        this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams().alpha - this.startAlpha) * this.getProgress());
+    }
+}
 class Figure {
     constructor(scene) {
         this.scene = scene;
@@ -671,7 +735,7 @@ class ThiefMagicFigure extends InteractiveFigure {
         let r = super.move(side);
         if (side === 'down' && r) {
             let puzzles = this.getScene().getWrapFigure().getPuzzles();
-            if (puzzles.length > 3) {
+            if (puzzles.length) {
                 let puzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
                 puzzle.createAnimation(ScalePuzzleAnimation, { x: 0, y: 0, alpha: 0 }).then(() => {
                     puzzle.remove();
@@ -997,6 +1061,18 @@ class BorderPuzzle extends Puzzle {
         }
         return tile;
     }
+    initGraphics() {
+        let width = this.getFigure().getScene().puzzleSize;
+        let height = this.getFigure().getScene().puzzleSize - 1;
+        let app = this.getFigure().getScene().getApp();
+        let graphics = PIXI.Sprite.fromImage(this.getTile());
+        graphics.width = width;
+        graphics.height = height;
+        graphics.anchor.set(0.5);
+        this.graphics = graphics;
+        app.stage.addChild(this.graphics);
+        return this.graphics;
+    }
 }
 class ShadowPuzzle extends Puzzle {
     getTile() {
@@ -1032,70 +1108,6 @@ class SimpleRedPuzzle extends Puzzle {
 class SimpleYellowPuzzle extends Puzzle {
     getTile() {
         return this.getFigure().getScene().assets.simplePuzzle.yellow;
-    }
-}
-class PuzzleAnimation {
-    constructor(puzzle) {
-        this.params = null;
-        this.puzzle = puzzle;
-    }
-    getParams() {
-        return this.params;
-    }
-    run(params = null) {
-        this.params = params;
-        this.startTime = new Date();
-        return new Promise((resolve) => {
-            this.onStart();
-            setTimeout(() => {
-                resolve(this);
-            }, this.getDuration());
-        }).then(() => {
-            this.onEnd();
-            this.getPuzzle().deactivateAnimation(this);
-        });
-    }
-    getProgress() {
-        return this.getDiff() / this.getDuration();
-    }
-    getDiff() {
-        return ((new Date()).getTime() - this.startTime.getTime());
-    }
-    getDuration() {
-        return 300;
-    }
-    getPuzzle() {
-        return this.puzzle;
-    }
-}
-///<reference path="basic.puzzle.animation.ts"/>
-class AlphaPuzzleAnimation extends PuzzleAnimation {
-    onStart() {
-        this.startAlpha = this.getPuzzle().getGraphics().alpha;
-    }
-    onEnd() {
-        this.getPuzzle().getGraphics().alpha = this.getParams();
-    }
-    animate() {
-        this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams() - this.startAlpha) * this.getProgress());
-    }
-}
-///<reference path="basic.puzzle.animation.ts"/>
-class ScalePuzzleAnimation extends PuzzleAnimation {
-    onStart() {
-        this.startX = this.getPuzzle().getGraphics().scale.x;
-        this.startY = this.getPuzzle().getGraphics().scale.y;
-        this.startAlpha = this.getPuzzle().getGraphics().alpha;
-    }
-    onEnd() {
-        this.getPuzzle().getGraphics().scale.x = this.getParams().x;
-        this.getPuzzle().getGraphics().scale.y = this.getParams().y;
-        this.getPuzzle().getGraphics().alpha = this.getParams().alpha;
-    }
-    animate() {
-        this.getPuzzle().getGraphics().scale.x = this.startX + ((this.getParams().x - this.startX) * this.getProgress());
-        this.getPuzzle().getGraphics().scale.y = this.startY + ((this.getParams().y - this.startY) * this.getProgress());
-        this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams().alpha - this.startAlpha) * this.getProgress());
     }
 }
 class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
