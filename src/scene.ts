@@ -81,9 +81,6 @@ class Scene {
                 InteractiveFigureIMiddle,
             ];
             this.interactiveFigure = new figures[Math.floor(Math.random() * figures.length)](this);
-            this.interactiveFigure.insertPuzzles(
-                this.generatePuzzles(this.interactiveFigure.getCountPuzzlePlaces(), SimplePuzzle)
-            );
         }
 
         this.interactiveFigure.onUpdateShape(this.shadowFigure.onUpdateShapeInteractiveFigure)

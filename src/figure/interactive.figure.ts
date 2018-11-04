@@ -5,6 +5,10 @@ abstract class InteractiveFigure extends Figure {
     protected row = null;
     private enableMove = true;
 
+    constructor(scene: Scene) {
+        super(scene);
+    }
+
     onImpact(): void {
         this.updateShape([]);
         this.getScene().initInteractiveFigure();
@@ -12,10 +16,6 @@ abstract class InteractiveFigure extends Figure {
 
     getSpeed() {
         return 500;
-    }
-
-    constructor(scene: Scene) {
-        super(scene);
     }
 
     getCell(): number {
@@ -140,7 +140,31 @@ abstract class InteractiveFigure extends Figure {
     }
 }
 
-class InteractiveFigureI extends InteractiveFigure {
+abstract class SimpleFigure extends InteractiveFigure {
+    constructor(scene: Scene) {
+        super(scene);
+
+        let arr = [];
+        let count = this.getCountPuzzlePlaces();
+
+        let puzzleTypes = [
+            SimpleGreenPuzzle,
+            SimpleBluePuzzle,
+            SimpleRedPuzzle,
+            SimpleYellowPuzzle,
+        ];
+        let puzzleType = puzzleTypes[Math.floor(Math.random() * puzzleTypes.length)];
+
+        for (let i = 0; i < count; i++) {
+            arr.push(new puzzleType());
+        }
+
+
+        this.insertPuzzles(arr);
+    }
+}
+
+class InteractiveFigureI extends SimpleFigure {
     initShape(): number[][] {
         return [
             [0, 0, 1, 0],
@@ -151,7 +175,7 @@ class InteractiveFigureI extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureO extends InteractiveFigure {
+class InteractiveFigureO extends SimpleFigure {
     initShape(): number[][] {
         return [
             [1, 1],
@@ -160,7 +184,7 @@ class InteractiveFigureO extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureT extends InteractiveFigure {
+class InteractiveFigureT extends SimpleFigure {
     initShape(): number[][] {
         return [
             [0, 1, 0],
@@ -170,7 +194,7 @@ class InteractiveFigureT extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureS extends InteractiveFigure {
+class InteractiveFigureS extends SimpleFigure {
     initShape(): number[][] {
         return [
             [0, 1, 1],
@@ -180,7 +204,7 @@ class InteractiveFigureS extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureZ extends InteractiveFigure {
+class InteractiveFigureZ extends SimpleFigure {
     initShape(): number[][] {
         return [
             [1, 1, 0],
@@ -190,7 +214,7 @@ class InteractiveFigureZ extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureJ extends InteractiveFigure {
+class InteractiveFigureJ extends SimpleFigure {
     initShape(): number[][] {
         return [
             [0, 1, 0],
@@ -200,7 +224,7 @@ class InteractiveFigureJ extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureL extends InteractiveFigure {
+class InteractiveFigureL extends SimpleFigure {
     initShape(): number[][] {
         return [
             [0, 1, 0],
@@ -210,7 +234,7 @@ class InteractiveFigureL extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureDot extends InteractiveFigure {
+class InteractiveFigureDot extends SimpleFigure {
     initShape(): number[][] {
         return [
             [1]
@@ -218,7 +242,7 @@ class InteractiveFigureDot extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureISmall extends InteractiveFigure {
+class InteractiveFigureISmall extends SimpleFigure {
     initShape(): number[][] {
         return [
             [1, 0],
@@ -227,7 +251,7 @@ class InteractiveFigureISmall extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureIMiddle extends InteractiveFigure {
+class InteractiveFigureIMiddle extends SimpleFigure {
     initShape(): number[][] {
         return [
             [0, 1, 0],
@@ -237,7 +261,7 @@ class InteractiveFigureIMiddle extends InteractiveFigure {
     }
 }
 
-class InteractiveFigureILSmall extends InteractiveFigure {
+class InteractiveFigureILSmall extends SimpleFigure {
     initShape(): number[][] {
         return [
             [1, 0],
