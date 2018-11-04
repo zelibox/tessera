@@ -15,6 +15,57 @@ canvas {
 
 .toolbar {
   height: 30px;
+  white-space: nowrap;
+  .points {
+    display: block;
+    white-space: nowrap;
+    float: left;
+    .d {
+      background: url(../assets/numbers.png);
+      width: 30px;
+      height: 30px;
+      display: inline-block;
+      background-size: 100%;
+      margin-right: -10px;
+      &.p-1 {
+        background-position-y: -30px;
+      }
+      &.p-2 {
+        background-position-y: -60px;
+      }
+      &.p-3 {
+        background-position-y: -90px;
+      }
+      &.p-4 {
+        background-position-y: -120px;
+      }
+      &.p-5 {
+        background-position-y: -150px;
+      }
+      &.p-6 {
+        background-position-y: -180px;
+      }
+      &.p-7 {
+        background-position-y: -210px;
+      }
+      &.p-8 {
+        background-position-y: -240px;
+      }
+      &.p-9 {
+        background-position-y: -270px;
+      }
+      &.p-0 {
+        background-position-y: 0;
+      }
+    }
+  }
+  .full-screen-toggle {
+    margin-left: 10px;
+    float: right;
+  }
+  .pause {
+    float: right;
+  }
 }
 .wrap {
   text-align: center;

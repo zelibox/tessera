@@ -8,7 +8,44 @@ body {
   overscroll-behavior: contain; }
 
 .toolbar {
-  height: 30px; }
+  height: 30px;
+  white-space: nowrap; }
+  .toolbar .points {
+    display: block;
+    white-space: nowrap;
+    float: left; }
+    .toolbar .points .d {
+      background: url(../assets/numbers.png);
+      width: 30px;
+      height: 30px;
+      display: inline-block;
+      background-size: 100%;
+      margin-right: -10px; }
+      .toolbar .points .d.p-1 {
+        background-position-y: -30px; }
+      .toolbar .points .d.p-2 {
+        background-position-y: -60px; }
+      .toolbar .points .d.p-3 {
+        background-position-y: -90px; }
+      .toolbar .points .d.p-4 {
+        background-position-y: -120px; }
+      .toolbar .points .d.p-5 {
+        background-position-y: -150px; }
+      .toolbar .points .d.p-6 {
+        background-position-y: -180px; }
+      .toolbar .points .d.p-7 {
+        background-position-y: -210px; }
+      .toolbar .points .d.p-8 {
+        background-position-y: -240px; }
+      .toolbar .points .d.p-9 {
+        background-position-y: -270px; }
+      .toolbar .points .d.p-0 {
+        background-position-y: 0; }
+  .toolbar .full-screen-toggle {
+    margin-left: 10px;
+    float: right; }
+  .toolbar .pause {
+    float: right; }
 
 .wrap {
   text-align: center; }
