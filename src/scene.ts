@@ -23,7 +23,11 @@ class Scene {
         },
         magicPuzzle: {
             rain: 'assets/puzzle/magic/rain.png',
-            thief: 'assets/puzzle/magic/thief.png',
+            thief1: 'assets/puzzle/magic/thief1.png',
+            thief2: 'assets/puzzle/magic/thief2.png',
+        },
+        shadowPuzzle: {
+            shadow: 'assets/puzzle/shadow/shadow.png',
         }
     };
 

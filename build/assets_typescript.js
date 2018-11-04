@@ -159,7 +159,11 @@ class Scene {
             },
             magicPuzzle: {
                 rain: 'assets/puzzle/magic/rain.png',
-                thief: 'assets/puzzle/magic/thief.png',
+                thief1: 'assets/puzzle/magic/thief1.png',
+                thief2: 'assets/puzzle/magic/thief2.png',
+            },
+            shadowPuzzle: {
+                shadow: 'assets/puzzle/shadow/shadow.png',
             }
         };
         this.wrapFigure = new WrapFigure(this);
@@ -962,65 +966,35 @@ class Puzzle {
     }
 }
 class BorderPuzzle extends Puzzle {
-    getColor() {
-        return 0x393e46;
-    }
-    initGraphics() {
-        let img = '';
+    getTile() {
+        let tile = '';
+        let sceneAssets = this.getFigure().getScene().assets.borderPuzzle;
         if (this.getRow() == 21 && this.getCell() == 1) {
-            img = 'stoneCliff_left.png';
+            tile = sceneAssets.left;
         }
         else if (this.getRow() == 21 && this.getCell() == 10) {
-            img = 'stoneCliff_right.png';
+            tile = sceneAssets.right;
         }
         else if (this.getRow() == 21 && this.getCell() > 1 && this.getCell() < 10) {
-            img = 'stoneMid.png';
+            tile = sceneAssets.mid;
         }
-        let width = this.getFigure().getScene().puzzleSize;
-        let height = this.getFigure().getScene().puzzleSize - 1;
-        let app = this.getFigure().getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/' + img);
-        graphics.position.x = 0;
-        graphics.position.y = 0;
-        graphics.width = width;
-        graphics.height = height;
-        graphics.anchor.set(0.5);
-        this.graphics = graphics;
-        app.stage.addChild(this.graphics);
-        return this.graphics;
+        return tile;
     }
 }
 class ShadowPuzzle extends Puzzle {
-    getColor() {
-        return 0x00adb5;
-    }
-    initGraphics() {
-        let width = this.getFigure().getScene().puzzleSize - 1;
-        let height = this.getFigure().getScene().puzzleSize - 1;
-        let app = this.getFigure().getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/platformPack_tile042.png');
-        graphics.width = width;
-        graphics.height = height;
-        graphics.anchor.set(0.5);
-        this.graphics = graphics;
-        this.graphics.alpha = 0;
-        app.stage.addChild(this.graphics);
-        return this.graphics;
+    getTile() {
+        return this.getFigure().getScene().assets.shadowPuzzle.shadow;
     }
     setAlpha(alpha) {
         if (this.graphics) {
             this.graphics.alpha = alpha;
         }
+    }
+    initGraphics() {
+        let graphics = super.initGraphics();
+        graphics.alpha = 0;
+        // todo if not set 0 => bug render
+        return graphics;
     }
 }
 class SimplePuzzle extends Puzzle {
@@ -1103,8 +1077,11 @@ class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
 }
 class RainItemPuzzle extends Puzzle {
     getTile() {
-        let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
-        return this.getFigure().getScene().assets.simplePuzzle[keys[Math.floor(Math.random() * keys.length)]];
+        if (!this.classicTile) {
+            let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
+            this.classicTile = this.getFigure().getScene().assets.simplePuzzle[keys[Math.floor(Math.random() * keys.length)]];
+        }
+        return this.classicTile;
     }
 }
 class RainMagicPuzzle extends Puzzle {
@@ -1129,34 +1106,19 @@ class RainMagicPuzzle extends Puzzle {
         }
         super.remove();
     }
-    initGraphics() {
-        //
-        let width = this.getFigure().getScene().puzzleSize - 1;
-        let height = this.getFigure().getScene().puzzleSize - 1;
-        let app = this.getFigure().getScene().getApp();
-        // let graphics = new PIXI.Graphics();
-        // graphics.lineStyle(0);
-        // graphics.beginFill(this.getColor(), 1);
-        // graphics.drawRoundedRect(0, 0, width, height, Math.floor(width * 0.30));
-        // graphics.endFill();
-        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_pink.png');
-        graphics.position.x = 0;
-        graphics.position.y = 0;
-        graphics.width = width;
-        graphics.height = height;
-        graphics.anchor.set(0.5);
-        this.graphics = graphics;
-        app.stage.addChild(this.graphics);
-        return this.graphics;
-    }
 }
 class ThiefMagicPuzzle extends Puzzle {
     constructor() {
         super(...arguments);
         this.classicMode = false;
+        this.classicTile = null;
     }
     getTile() {
-        return this.getFigure().getScene().assets.magicPuzzle.thief;
+        if (!this.classicTile) {
+            let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
+            this.classicTile = this.getFigure().getScene().assets.simplePuzzle[keys[Math.floor(Math.random() * keys.length)]];
+        }
+        return this.classicTile;
     }
     initGraphics() {
         if (this.classicMode) {
@@ -1165,15 +1127,20 @@ class ThiefMagicPuzzle extends Puzzle {
         let width = this.getFigure().getScene().puzzleSize - 1;
         let height = this.getFigure().getScene().puzzleSize - 1;
         let app = this.getFigure().getScene().getApp();
-        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_beige.png');
-        graphics.position.x = 0;
-        graphics.position.y = 0;
-        graphics.width = width;
-        graphics.height = height;
-        graphics.anchor.set(0.5);
-        this.graphics = graphics;
-        app.stage.addChild(this.graphics);
-        return this.graphics;
+        let t1 = PIXI.Texture.fromImage(this.getFigure().getScene().assets.magicPuzzle.thief1);
+        let t2 = PIXI.Texture.fromImage(this.getFigure().getScene().assets.magicPuzzle.thief2);
+        let sprite = new PIXI.extras.AnimatedSprite([
+            t1,
+            t2,
+        ], true);
+        sprite.width = width;
+        sprite.height = height;
+        sprite.anchor.set(0.5);
+        sprite.animationSpeed = 0.1;
+        sprite.play();
+        this.graphics = sprite;
+        app.stage.addChild(sprite);
+        return sprite;
     }
     setClassicGraphic() {
         if (this.graphics) {

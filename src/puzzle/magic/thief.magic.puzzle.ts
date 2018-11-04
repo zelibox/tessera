@@ -1,29 +1,48 @@
 class ThiefMagicPuzzle extends Puzzle {
     private classicMode: boolean = false;
+    private classicTile = null;
+
     getTile(): string {
-        return this.getFigure().getScene().assets.magicPuzzle.thief;
+        if (!this.classicTile) {
+            let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
+            this.classicTile = this.getFigure().getScene().assets.simplePuzzle[
+                keys[Math.floor(Math.random() * keys.length)]
+                ];
+        }
+
+        return this.classicTile;
     }
+
 
     initGraphics(): PIXI.Container {
         if (this.classicMode) {
             return super.initGraphics();
         }
+
         let width = this.getFigure().getScene().puzzleSize - 1;
         let height = this.getFigure().getScene().puzzleSize - 1;
 
         let app = this.getFigure().getScene().getApp();
 
-        let graphics = PIXI.Sprite.fromImage('assets/hudPlayer_beige.png');
-        graphics.position.x = 0;
-        graphics.position.y = 0;
-        graphics.width = width;
-        graphics.height = height;
+        let t1 = PIXI.Texture.fromImage(this.getFigure().getScene().assets.magicPuzzle.thief1);
+        let t2 = PIXI.Texture.fromImage(this.getFigure().getScene().assets.magicPuzzle.thief2);
 
-        graphics.anchor.set(0.5);
+        let sprite =  new PIXI.extras.AnimatedSprite([
+            t1,
+            t2,
+        ], true);
 
-        this.graphics = graphics;
-        app.stage.addChild(this.graphics);
-        return this.graphics;
+        sprite.width = width;
+        sprite.height = height;
+        sprite.anchor.set(0.5);
+        sprite.animationSpeed = 0.1;
+        sprite.play();
+
+        this.graphics = sprite;
+
+        app.stage.addChild(sprite);
+
+        return sprite;
     }
 
     setClassicGraphic() {

@@ -20,6 +20,8 @@ interface IPuzzle {
     createAnimation(animationType, params?: any);
 
     deactivateAnimation(animation:IPuzzleAnimation);
+
+    setPosition(x: number, y: number): void
 }
 
 abstract class Puzzle implements IPuzzle {

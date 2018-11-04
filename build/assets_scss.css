@@ -1,7 +1,9 @@
 body {
   padding: 0;
   margin: 0;
-  background: #111;
+  background: linear-gradient(0deg, #17043e, #2fa99d);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   overflow: hidden;
   overscroll-behavior: contain; }
 
