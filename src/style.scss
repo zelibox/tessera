@@ -105,10 +105,14 @@ canvas {
     margin-left: 10px;
     float: right;
     display: inline-block;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     background: url(../assets/control/larger.png);
     background-size: 100% 100%;
+    border: 1px solid #fff;
+    margin-top: 3px;
+    margin-right: 3px;
+    border-radius: 3px;
     &.active {
       background: url(../assets/control/smaller.png);
       background-size: 100% 100%;
@@ -117,10 +121,13 @@ canvas {
   .pause {
     float: right;
     display: inline-block;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     background: url(../assets/control/pause.png);
     background-size: 100% 100%;
+    border: 1px solid #fff;
+    margin-top: 3px;
+    border-radius: 3px;
     &.active {
       background: url(../assets/control/play.png);
       background-size: 100% 100%;
@@ -130,9 +137,7 @@ canvas {
 .wrap {
   text-align: center;
 }
-.footer {
-  height: 30px;
-}
+
 :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen, :fullscreen  {
   background: url(../assets/colored_land.png);
 }

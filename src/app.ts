@@ -1,8 +1,4 @@
 $(function () {
-    let points = 100500;
-    // $('.points').append('<span class="d p-1"></span>');
-
-
     const app = new PIXI.Application(
         {
             autoResize: true,
@@ -28,18 +24,17 @@ $(function () {
 
         function resize() {
             let puzzleSize = window.innerWidth / scene.cols;
-            let toolbarHeight = $('.toolbar').height() + $('.footer').height();
+            let toolbarHeight = $('.toolbar').height();
             if ((puzzleSize * scene.rows) > (window.innerHeight - toolbarHeight)) {
                 puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
             }
             scene.puzzleSize = puzzleSize;
-            // for (var i = app.stage.children.length - 1; i >= 0; i--) {	app.stage.removeChild(app.stage.children[i]);};
             scene.getAllPuzzles().forEach(p => p.clearGraphics());
             app.stage.removeChildren();
             app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
         }
 
-        setInterval(resize, 60000);
+        setInterval(resize, 60000); // todo
 
         resize();
 
@@ -51,9 +46,11 @@ $(function () {
         // controller
 
         let startX = 0;
-        let interval;
         $(app.view)['swipe']({
             swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+                if (scene.getPause()) {
+                    return;
+                }
                 if (phase === 'start') {
                     if (event.pageX) {
                         startX = event.pageX;
@@ -70,6 +67,9 @@ $(function () {
                 }
             },
             swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
+                if (scene.getPause()) {
+                    return;
+                }
                 if (duration < 350) {
                     if (direction == 'left') { // left
                         while (scene.getInteractiveFigure().move('left')) {
@@ -91,6 +91,9 @@ $(function () {
         });
 
         $("body").on('keydown', function (e) {
+            if (scene.getPause()) {
+                return;
+            }
             if (e.keyCode == 37) { // left
                 scene.getInteractiveFigure().move('left')
             }

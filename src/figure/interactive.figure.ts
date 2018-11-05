@@ -123,8 +123,9 @@ abstract class InteractiveFigure extends Figure {
         if (barrierType) {
             if (barrierType === 'down') {
                 if (this.getRow() === 1) {
-                    // todo
+                    this.scene.disablePoints();
                     this.scene.getWrapFigure().getPuzzles().forEach(p => p.remove());
+                    this.scene.enablePoints();
                 } else {
                     this.enableMove = false;
                     barrier.getFigure().impact(this);

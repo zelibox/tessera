@@ -1,4 +1,4 @@
-class ThiefMagicPuzzle extends Puzzle {
+class ThiefMagicPuzzle extends SimplePuzzle {
     private classicMode: boolean = false;
     private classicTile = null;
 

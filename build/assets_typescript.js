@@ -1,6 +1,4 @@
 $(function () {
-    let points = 100500;
-    // $('.points').append('<span class="d p-1"></span>');
     const app = new PIXI.Application({
         autoResize: true,
         resolution: devicePixelRatio,
@@ -21,26 +19,27 @@ $(function () {
         window.addEventListener('resize', resize);
         function resize() {
             let puzzleSize = window.innerWidth / scene.cols;
-            let toolbarHeight = $('.toolbar').height() + $('.footer').height();
+            let toolbarHeight = $('.toolbar').height();
             if ((puzzleSize * scene.rows) > (window.innerHeight - toolbarHeight)) {
                 puzzleSize = (window.innerHeight - toolbarHeight) / scene.rows;
             }
             scene.puzzleSize = puzzleSize;
-            // for (var i = app.stage.children.length - 1; i >= 0; i--) {	app.stage.removeChild(app.stage.children[i]);};
             scene.getAllPuzzles().forEach(p => p.clearGraphics());
             app.stage.removeChildren();
             app.renderer.resize(puzzleSize * scene.cols, puzzleSize * scene.rows);
         }
-        setInterval(resize, 60000);
+        setInterval(resize, 60000); // todo
         resize();
         app.ticker.add(function () {
             scene.render();
         });
         // controller
         let startX = 0;
-        let interval;
         $(app.view)['swipe']({
             swipeStatus: function (event, phase, direction, distance, duration, fingers, fingerData, currentDirection) {
+                if (scene.getPause()) {
+                    return;
+                }
                 if (phase === 'start') {
                     if (event.pageX) {
                         startX = event.pageX;
@@ -59,6 +58,9 @@ $(function () {
                 }
             },
             swipe: function (event, direction, distance, duration, fingerCount, fingerData) {
+                if (scene.getPause()) {
+                    return;
+                }
                 if (duration < 350) {
                     if (direction == 'left') { // left
                         while (scene.getInteractiveFigure().move('left')) {
@@ -79,6 +81,9 @@ $(function () {
             }
         });
         $("body").on('keydown', function (e) {
+            if (scene.getPause()) {
+                return;
+            }
             if (e.keyCode == 37) { // left
                 scene.getInteractiveFigure().move('left');
             }
@@ -175,6 +180,7 @@ class Scene {
                 shadow: 'assets/puzzle/shadow/shadow.png',
             }
         };
+        this.activePoints = true;
         this.wrapFigure = new WrapFigure(this);
         this.borderFigure = new BorderFigure(this);
         this.borderFigure.insertPuzzles(this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle));
@@ -294,17 +300,27 @@ class Scene {
     setPause(pause) {
         this.pause = pause;
     }
+    getPause() {
+        return this.pause;
+    }
     getPoints() {
-        return (343758).toString();
         let points = window.localStorage.getItem('points');
         if (points === null) {
             window.localStorage.setItem('points', '0');
         }
         return window.localStorage.getItem('points');
     }
+    disablePoints() {
+        this.activePoints = false;
+    }
+    enablePoints() {
+        this.activePoints = true;
+    }
     addPoint(cost = 1) {
-        window.localStorage.setItem('points', (this.getPoints() * 1 + cost).toString());
-        this.renderPoints();
+        if (this.activePoints) {
+            window.localStorage.setItem('points', (this.getPoints() * 1 + cost).toString());
+            this.renderPoints();
+        }
     }
     renderPoints() {
         let numbers = this.getPoints().split('');
@@ -313,9 +329,8 @@ class Scene {
             $('.points').append('<span class="d">');
         }
         $('.points').find('.d').each((i, e) => {
-            console.log($(e));
+            $(e)['attr']('class', `d p-${numbers[i]}`);
         });
-        console.log(numbers, numberElements.length);
     }
 }
 class Figure {
@@ -539,8 +554,9 @@ class InteractiveFigure extends Figure {
         if (barrierType) {
             if (barrierType === 'down') {
                 if (this.getRow() === 1) {
-                    // todo
+                    this.scene.disablePoints();
                     this.scene.getWrapFigure().getPuzzles().forEach(p => p.remove());
+                    this.scene.enablePoints();
                 }
                 else {
                     this.enableMove = false;
@@ -1059,22 +1075,28 @@ class ShadowPuzzle extends Puzzle {
         return graphics;
     }
 }
-class SimpleGreenPuzzle extends Puzzle {
+class SimplePuzzle extends Puzzle {
+    remove() {
+        this.getFigure().getScene().addPoint();
+        super.remove();
+    }
+}
+class SimpleGreenPuzzle extends SimplePuzzle {
     getTile() {
         return this.getFigure().getScene().assets.simplePuzzle.green;
     }
 }
-class SimpleBluePuzzle extends Puzzle {
+class SimpleBluePuzzle extends SimplePuzzle {
     getTile() {
         return this.getFigure().getScene().assets.simplePuzzle.blue;
     }
 }
-class SimpleRedPuzzle extends Puzzle {
+class SimpleRedPuzzle extends SimplePuzzle {
     getTile() {
         return this.getFigure().getScene().assets.simplePuzzle.red;
     }
 }
-class SimpleYellowPuzzle extends Puzzle {
+class SimpleYellowPuzzle extends SimplePuzzle {
     getTile() {
         return this.getFigure().getScene().assets.simplePuzzle.yellow;
     }
@@ -1152,7 +1174,7 @@ class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
         return 150;
     }
 }
-class RainItemPuzzle extends Puzzle {
+class RainItemPuzzle extends SimplePuzzle {
     getTile() {
         if (!this.classicTile) {
             let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
@@ -1161,7 +1183,7 @@ class RainItemPuzzle extends Puzzle {
         return this.classicTile;
     }
 }
-class RainMagicPuzzle extends Puzzle {
+class RainMagicPuzzle extends SimplePuzzle {
     constructor() {
         super(...arguments);
         this.animationTime = 2000;
@@ -1184,7 +1206,7 @@ class RainMagicPuzzle extends Puzzle {
         super.remove();
     }
 }
-class ThiefMagicPuzzle extends Puzzle {
+class ThiefMagicPuzzle extends SimplePuzzle {
     constructor() {
         super(...arguments);
         this.classicMode = false;

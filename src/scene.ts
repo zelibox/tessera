@@ -37,6 +37,7 @@ class Scene {
             shadow: 'assets/puzzle/shadow/shadow.png',
         }
     };
+    private activePoints = true;
 
     constructor(private app: PIXI.Application) {
         this.wrapFigure = new WrapFigure(this);
@@ -184,8 +185,11 @@ class Scene {
         this.pause = pause;
     }
 
+    getPause() {
+        return this.pause;
+    }
+
     getPoints(): any {
-        return (343758).toString();
         let points = window.localStorage.getItem('points');
         if (points === null) {
             window.localStorage.setItem('points', '0');
@@ -194,9 +198,19 @@ class Scene {
         return window.localStorage.getItem('points');
     }
 
+    disablePoints() {
+        this.activePoints = false;
+    }
+
+    enablePoints() {
+        this.activePoints = true;
+    }
+
     addPoint(cost = 1) {
-        window.localStorage.setItem('points', (this.getPoints() * 1 + cost).toString());
-        this.renderPoints()
+        if (this.activePoints) {
+            window.localStorage.setItem('points', (this.getPoints() * 1 + cost).toString());
+            this.renderPoints()
+        }
     }
 
     renderPoints() {
@@ -206,9 +220,8 @@ class Scene {
             $('.points').append('<span class="d">');
         }
         $('.points').find('.d').each((i, e) => {
-            console.log($(e));
+            $(e)['attr']('class', `d p-${numbers[i]}`);
         });
-        console.log(numbers, numberElements.length);
     }
 
 

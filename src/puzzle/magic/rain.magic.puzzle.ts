@@ -12,7 +12,7 @@ class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
     }
 }
 
-class RainItemPuzzle extends Puzzle {
+class RainItemPuzzle extends SimplePuzzle {
     private classicTile: string;
     getTile(): string {
         if (!this.classicTile) {
@@ -26,7 +26,7 @@ class RainItemPuzzle extends Puzzle {
 
 }
 
-class RainMagicPuzzle extends Puzzle {
+class RainMagicPuzzle extends SimplePuzzle {
     animationTime = 2000;
 
     getTile(): string {
