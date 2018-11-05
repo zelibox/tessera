@@ -47,7 +47,7 @@ class Scene {
         );
         this.shadowFigure = new ShadowFigure(this);
 
-
+        this.renderPoints();
         this.initInteractiveFigure();
     }
 
@@ -58,12 +58,12 @@ class Scene {
     getAllAssets() {
         let assets = [];
         for (let assetType in this.assets) {
-            for(let assetTypeKey in this.assets[assetType]) {
+            for (let assetTypeKey in this.assets[assetType]) {
                 if (this.assets[assetType].hasOwnProperty(assetTypeKey)) {
                     assets.push(this.assets[assetType][assetTypeKey]);
                 }
             }
-        } 
+        }
         return assets;
     }
 
@@ -183,4 +183,33 @@ class Scene {
     setPause(pause: boolean) {
         this.pause = pause;
     }
+
+    getPoints(): any {
+        return (343758).toString();
+        let points = window.localStorage.getItem('points');
+        if (points === null) {
+            window.localStorage.setItem('points', '0');
+        }
+
+        return window.localStorage.getItem('points');
+    }
+
+    addPoint(cost = 1) {
+        window.localStorage.setItem('points', (this.getPoints() * 1 + cost).toString());
+        this.renderPoints()
+    }
+
+    renderPoints() {
+        let numbers = this.getPoints().split('');
+        let numberElements = $('.points').find('.d');
+        for (let i = numberElements.length; i < numbers.length; i++) {
+            $('.points').append('<span class="d">');
+        }
+        $('.points').find('.d').each((i, e) => {
+            console.log($(e));
+        });
+        console.log(numbers, numberElements.length);
+    }
+
+
 }

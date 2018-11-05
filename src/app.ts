@@ -1,15 +1,6 @@
 $(function () {
     let points = 100500;
-    $('.points').append('<span class="d p-1"></span>');
-    $('.points').append('<span class="d p-2"></span>');
-    $('.points').append('<span class="d p-3"></span>');
-    $('.points').append('<span class="d p-4"></span>');
-    $('.points').append('<span class="d p-5"></span>');
-    $('.points').append('<span class="d p-6"></span>');
-    $('.points').append('<span class="d p-7"></span>');
-    $('.points').append('<span class="d p-8"></span>');
-    $('.points').append('<span class="d p-9"></span>');
-    $('.points').append('<span class="d p-0"></span>');
+    // $('.points').append('<span class="d p-1"></span>');
 
 
     const app = new PIXI.Application(

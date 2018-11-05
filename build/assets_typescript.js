@@ -1,15 +1,6 @@
 $(function () {
     let points = 100500;
-    $('.points').append('<span class="d p-1"></span>');
-    $('.points').append('<span class="d p-2"></span>');
-    $('.points').append('<span class="d p-3"></span>');
-    $('.points').append('<span class="d p-4"></span>');
-    $('.points').append('<span class="d p-5"></span>');
-    $('.points').append('<span class="d p-6"></span>');
-    $('.points').append('<span class="d p-7"></span>');
-    $('.points').append('<span class="d p-8"></span>');
-    $('.points').append('<span class="d p-9"></span>');
-    $('.points').append('<span class="d p-0"></span>');
+    // $('.points').append('<span class="d p-1"></span>');
     const app = new PIXI.Application({
         autoResize: true,
         resolution: devicePixelRatio,
@@ -188,6 +179,7 @@ class Scene {
         this.borderFigure = new BorderFigure(this);
         this.borderFigure.insertPuzzles(this.generatePuzzles(this.borderFigure.getCountPuzzlePlaces(), BorderPuzzle));
         this.shadowFigure = new ShadowFigure(this);
+        this.renderPoints();
         this.initInteractiveFigure();
     }
     getApp() {
@@ -301,6 +293,29 @@ class Scene {
     }
     setPause(pause) {
         this.pause = pause;
+    }
+    getPoints() {
+        return (343758).toString();
+        let points = window.localStorage.getItem('points');
+        if (points === null) {
+            window.localStorage.setItem('points', '0');
+        }
+        return window.localStorage.getItem('points');
+    }
+    addPoint(cost = 1) {
+        window.localStorage.setItem('points', (this.getPoints() * 1 + cost).toString());
+        this.renderPoints();
+    }
+    renderPoints() {
+        let numbers = this.getPoints().split('');
+        let numberElements = $('.points').find('.d');
+        for (let i = numberElements.length; i < numbers.length; i++) {
+            $('.points').append('<span class="d">');
+        }
+        $('.points').find('.d').each((i, e) => {
+            console.log($(e));
+        });
+        console.log(numbers, numberElements.length);
     }
 }
 class Figure {
