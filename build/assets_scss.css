@@ -48,7 +48,7 @@ body {
       height: 30px;
       display: inline-block;
       background-size: 100%;
-      margin-right: -10px;
+      margin-right: -15px;
       transition: all 0.5s ease; }
       .toolbar .points .d.p-1 {
         background-position-y: -30px; }
