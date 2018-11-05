@@ -10,6 +10,13 @@ class Scene {
     private customFigures: IFigure[] = [];
 
     public assets = {
+        control: {
+            play: 'assets/control/play.png',
+            larger: 'assets/control/larger.png',
+            numbers: 'assets/control/numbers.png',
+            pause: 'assets/control/pause.png',
+            smaller: 'assets/control/smaller.png',
+        },
         simplePuzzle: {
             blue: 'assets/puzzle/simple/blue.png',
             green: 'assets/puzzle/simple/green.png',

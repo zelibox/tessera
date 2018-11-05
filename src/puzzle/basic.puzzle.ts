@@ -31,7 +31,7 @@ abstract class Puzzle implements IPuzzle {
     public futureY = null;
     public stepX = null;
     public stepY = null;
-    public animationTime = 300;
+    public animationTime = 400;
     private cell: number = 5; //  todo!!!!!
     private row: number = 5; //  todo!!!!!
     private figure: IFigure;

@@ -157,6 +157,13 @@ class Scene {
         this.pause = false;
         this.customFigures = [];
         this.assets = {
+            control: {
+                play: 'assets/control/play.png',
+                larger: 'assets/control/larger.png',
+                numbers: 'assets/control/numbers.png',
+                pause: 'assets/control/pause.png',
+                smaller: 'assets/control/smaller.png',
+            },
             simplePuzzle: {
                 blue: 'assets/puzzle/simple/blue.png',
                 green: 'assets/puzzle/simple/green.png',
@@ -871,7 +878,7 @@ class Puzzle {
         this.futureY = null;
         this.stepX = null;
         this.stepY = null;
-        this.animationTime = 300;
+        this.animationTime = 400;
         this.cell = 5; //  todo!!!!!
         this.row = 5; //  todo!!!!!
         this.activeAnimationList = [];

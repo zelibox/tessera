@@ -1,12 +1,52 @@
 body {
   padding: 0;
   margin: 0;
-  background: linear-gradient(0deg, #17043e, #2fa99d);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
   overflow: hidden;
   overscroll-behavior: contain;
+  color: #fff;
+  background: linear-gradient(-45deg, #03001e, #7303c0, #ec38bc);
+  background-size: 300% 300%;
+  -webkit-animation: Gradient 30s ease infinite;
+  -moz-animation: Gradient 30s ease infinite;
+  animation: Gradient 30s ease infinite;
 }
+
+@-webkit-keyframes Gradient {
+  0% {
+    background-position: 0% 50%
+  }
+  50% {
+    background-position: 100% 50%
+  }
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+@-moz-keyframes Gradient {
+  0% {
+    background-position: 0% 50%
+  }
+  50% {
+    background-position: 100% 50%
+  }
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+@keyframes Gradient {
+  0% {
+    background-position: 0% 50%
+  }
+  50% {
+    background-position: 100% 50%
+  }
+  100% {
+    background-position: 0% 50%
+  }
+}
+
 canvas {
   //background: #000;
   //background: url(../assets/blue_land.png);
@@ -16,17 +56,19 @@ canvas {
 .toolbar {
   height: 30px;
   white-space: nowrap;
+  overflow: hidden;
   .points {
     display: block;
     white-space: nowrap;
     float: left;
     .d {
-      background: url(../assets/numbers.png);
+      background: url(../assets/control/numbers.png);
       width: 30px;
       height: 30px;
       display: inline-block;
       background-size: 100%;
       margin-right: -10px;
+      transition: all 0.5s ease;
       &.p-1 {
         background-position-y: -30px;
       }
@@ -62,6 +104,15 @@ canvas {
   .full-screen-toggle {
     margin-left: 10px;
     float: right;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url(../assets/control/larger.png);
+    background-size: 100% 100%;
+    &.active {
+      background: url(../assets/control/smaller.png);
+      background-size: 100% 100%;
+    }
   }
   .pause {
     float: right;
