@@ -154,11 +154,9 @@ class Scene {
         this.customFigures = [];
         this.assets = {
             control: {
-                play: 'assets/control/play.png',
                 larger: 'assets/control/larger.png',
                 numbers: 'assets/control/numbers.png',
-                pause: 'assets/control/pause.png',
-                smaller: 'assets/control/smaller.png',
+                pause: 'assets/control/pause.png'
             },
             simplePuzzle: {
                 blue: 'assets/puzzle/simple/blue.png',
@@ -173,8 +171,8 @@ class Scene {
             },
             magicPuzzle: {
                 rain: 'assets/puzzle/magic/rain.png',
-                thief1: 'assets/puzzle/magic/thief1.png',
-                thief2: 'assets/puzzle/magic/thief2.png',
+                thief: 'assets/puzzle/magic/thief.png',
+                gear: 'assets/puzzle/magic/gear.png',
             },
             shadowPuzzle: {
                 shadow: 'assets/puzzle/shadow/shadow.png',
@@ -203,8 +201,11 @@ class Scene {
         return assets;
     }
     initInteractiveFigure() {
-        let random = (Math.floor(Math.random() * (15 - 1 + 1)) + 1);
-        if (random == 11) {
+        let random = (Math.floor(Math.random() * (16 - 1 + 1)) + 1);
+        if (random == 10) {
+            this.interactiveFigure = new GearMagicFigure(this);
+        }
+        else if (random == 11) {
             this.interactiveFigure = new ThiefMagicFigure(this);
         }
         else if (random == 12) {
@@ -707,15 +708,6 @@ class ThiefMagicFigure extends InteractiveFigure {
             [1],
         ];
     }
-    onImpact() {
-        if (this.getPuzzles().length) {
-            let puzzle = this.getPuzzles()[0];
-            if (puzzle instanceof ThiefMagicPuzzle) {
-                puzzle.setClassicGraphic();
-            }
-        }
-        super.onImpact();
-    }
     move(side) {
         let r = super.move(side);
         if (side === 'down' && r) {
@@ -728,6 +720,46 @@ class ThiefMagicFigure extends InteractiveFigure {
             }
         }
         return r;
+    }
+}
+class GearMagicFigure extends InteractiveFigure {
+    constructor(scene) {
+        super(scene);
+        this.direction = Math.floor(Math.random() * 2);
+        let puzzle = new GearMagicPuzzle();
+        puzzle.setDirection(this.direction);
+        this.insertPuzzles([puzzle]);
+    }
+    move(side) {
+        let r = super.move(side);
+        if (side === 'down' && r) {
+            let shape = this.getScene().getWrapFigure().getShape().map(row => {
+                let move = false;
+                let newRow = [];
+                for (let cell of (this.direction ? row.reverse() : row)) {
+                    if (typeof cell === "number" && !move) {
+                        move = true;
+                    }
+                    else {
+                        newRow.push(cell);
+                    }
+                }
+                if (move) {
+                    newRow.push(0);
+                }
+                else {
+                    newRow = row;
+                }
+                return (this.direction ? newRow.reverse() : newRow);
+            });
+            this.getScene().getWrapFigure().updateShape(shape);
+        }
+        return r;
+    }
+    initShape() {
+        return [
+            [1]
+        ];
     }
 }
 // LeftWind -- move all to right
@@ -1165,6 +1197,18 @@ class ScalePuzzleAnimation extends PuzzleAnimation {
         this.getPuzzle().getGraphics().alpha = this.startAlpha + ((this.getParams().alpha - this.startAlpha) * this.getProgress());
     }
 }
+class GearMagicPuzzle extends SimplePuzzle {
+    getTile() {
+        return this.getFigure().getScene().assets.magicPuzzle.gear;
+    }
+    render() {
+        super.render();
+        this.getGraphics().rotation += (this.direction ? 0.03 : -0.03);
+    }
+    setDirection(direction) {
+        this.direction = direction;
+    }
+}
 class RainItemFigureMagicPuzzle extends InteractiveFigureDot {
     onImpact() {
         this.getScene().removeCustomFigure(this);
@@ -1207,46 +1251,8 @@ class RainMagicPuzzle extends SimplePuzzle {
     }
 }
 class ThiefMagicPuzzle extends SimplePuzzle {
-    constructor() {
-        super(...arguments);
-        this.classicMode = false;
-        this.classicTile = null;
-    }
     getTile() {
-        if (!this.classicTile) {
-            let keys = Object.keys(this.getFigure().getScene().assets.simplePuzzle);
-            this.classicTile = this.getFigure().getScene().assets.simplePuzzle[keys[Math.floor(Math.random() * keys.length)]];
-        }
-        return this.classicTile;
-    }
-    initGraphics() {
-        if (this.classicMode) {
-            return super.initGraphics();
-        }
-        let width = this.getFigure().getScene().puzzleSize - 1;
-        let height = this.getFigure().getScene().puzzleSize - 1;
-        let app = this.getFigure().getScene().getApp();
-        let t1 = PIXI.Texture.fromImage(this.getFigure().getScene().assets.magicPuzzle.thief1);
-        let t2 = PIXI.Texture.fromImage(this.getFigure().getScene().assets.magicPuzzle.thief2);
-        let sprite = new PIXI.extras.AnimatedSprite([
-            t1,
-            t2,
-        ], true);
-        sprite.width = width;
-        sprite.height = height;
-        sprite.anchor.set(0.5);
-        sprite.animationSpeed = 0.1;
-        sprite.play();
-        this.graphics = sprite;
-        app.stage.addChild(sprite);
-        return sprite;
-    }
-    setClassicGraphic() {
-        if (this.graphics) {
-            this.classicMode = true;
-            this.clearGraphics();
-            this.initGraphics();
-        }
+        return this.getFigure().getScene().assets.magicPuzzle.thief;
     }
 }
 

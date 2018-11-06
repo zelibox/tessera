@@ -11,11 +11,9 @@ class Scene {
 
     public assets = {
         control: {
-            play: 'assets/control/play.png',
             larger: 'assets/control/larger.png',
             numbers: 'assets/control/numbers.png',
-            pause: 'assets/control/pause.png',
-            smaller: 'assets/control/smaller.png',
+            pause: 'assets/control/pause.png'
         },
         simplePuzzle: {
             blue: 'assets/puzzle/simple/blue.png',
@@ -30,8 +28,8 @@ class Scene {
         },
         magicPuzzle: {
             rain: 'assets/puzzle/magic/rain.png',
-            thief1: 'assets/puzzle/magic/thief1.png',
-            thief2: 'assets/puzzle/magic/thief2.png',
+            thief: 'assets/puzzle/magic/thief.png',
+            gear: 'assets/puzzle/magic/gear.png',
         },
         shadowPuzzle: {
             shadow: 'assets/puzzle/shadow/shadow.png',
@@ -69,8 +67,10 @@ class Scene {
     }
 
     initInteractiveFigure() {
-        let random = (Math.floor(Math.random() * (15 - 1 + 1)) + 1);
-        if (random == 11) {
+        let random = (Math.floor(Math.random() * (16 - 1 + 1)) + 1);
+        if (random == 10) {
+            this.interactiveFigure = new GearMagicFigure(this);
+        } else if (random == 11) {
             this.interactiveFigure = new ThiefMagicFigure(this);
         } else if (random == 12) {
             this.interactiveFigure = new RainMagicFigure(this);

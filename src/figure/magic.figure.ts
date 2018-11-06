@@ -23,17 +23,6 @@ class ThiefMagicFigure extends InteractiveFigure {
         ];
     }
 
-
-    onImpact(): void {
-        if(this.getPuzzles().length) {
-            let puzzle = this.getPuzzles()[0];
-            if (puzzle instanceof ThiefMagicPuzzle) {
-                puzzle.setClassicGraphic()
-            }
-        }
-        super.onImpact();
-    }
-
     move(side): boolean {
         let r = super.move(side);
         if (side === 'down' && r) {
@@ -49,6 +38,50 @@ class ThiefMagicFigure extends InteractiveFigure {
             }
         }
         return r;
+    }
+}
+
+class GearMagicFigure extends InteractiveFigure {
+    private direction: number;
+    constructor(scene: Scene) {
+        super(scene);
+        this.direction = Math.floor(Math.random() * 2);
+        let puzzle = new GearMagicPuzzle();
+        puzzle.setDirection(this.direction);
+        this.insertPuzzles([puzzle])
+    }
+
+    move(side): boolean {
+        let r = super.move(side);
+        if (side === 'down' && r) {
+            let shape = this.getScene().getWrapFigure().getShape().map(row => {
+                let move = false;
+                let newRow = [];
+                for (let cell of (this.direction ? row.reverse() : row)) {
+                    if (typeof cell === "number" && !move) {
+                        move = true;
+                    } else {
+                        newRow.push(cell);
+                    }
+                }
+                if (move) {
+                    newRow.push(0);
+                } else {
+                    newRow = row;
+                }
+
+                return (this.direction ? newRow.reverse() : newRow);
+            });
+
+            this.getScene().getWrapFigure().updateShape(shape);
+        }
+        return r;
+    }
+
+    initShape(): number[][] {
+        return [
+            [1]
+        ];
     }
 }
 // LeftWind -- move all to right

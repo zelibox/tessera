@@ -78,9 +78,6 @@ body {
     margin-top: 3px;
     margin-right: 3px;
     border-radius: 3px; }
-    .toolbar .full-screen-toggle.active {
-      background: url(../assets/control/smaller.png);
-      background-size: 100% 100%; }
   .toolbar .pause {
     float: right;
     display: inline-block;
@@ -91,9 +88,6 @@ body {
     border: 1px solid #fff;
     margin-top: 3px;
     border-radius: 3px; }
-    .toolbar .pause.active {
-      background: url(../assets/control/play.png);
-      background-size: 100% 100%; }
 
 .wrap {
   text-align: center; }

@@ -98,10 +98,6 @@ canvas {
     margin-top: 3px;
     margin-right: 3px;
     border-radius: 3px;
-    &.active {
-      background: url(../assets/control/smaller.png);
-      background-size: 100% 100%;
-    }
   }
   .pause {
     float: right;
@@ -113,10 +109,6 @@ canvas {
     border: 1px solid #fff;
     margin-top: 3px;
     border-radius: 3px;
-    &.active {
-      background: url(../assets/control/play.png);
-      background-size: 100% 100%;
-    }
   }
 }
 .wrap {
