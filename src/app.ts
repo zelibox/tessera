@@ -14,11 +14,11 @@ $(function () {
     loader.add(scene.getAllAssets());
     loader.load();
     loader.on('progress', () => {
-        // todo
-        console.log(loader.progress);
+        $('.cover .content').html(`${Math.floor(loader.progress)}%`);
     });
 
     loader.on('complete', () => {
+        $('.cover').hide();
         $('.wrap').append(app.view);
         window.addEventListener('resize', resize);
 
@@ -110,14 +110,15 @@ $(function () {
 
 
         let pauseElement = $('.pause');
-        pauseElement.on('click', function() {
-            if (pauseElement.hasClass('active')) {
-                pauseElement.removeClass('active');
-                scene.setPause(false)
-            } else {
-                pauseElement.addClass('active');
-                scene.setPause(true)
-            }
+        pauseElement.on('click', () => {
+            scene.setPause(true);
+            $('.cover').show();
+            $('.cover .content').html('PLAY');
+            $('.cover .content').css('cursor', 'pointer');
+            $('.cover .content').on('click', () => {
+                $('.cover').hide();
+                scene.setPause(false);
+            })
         });
 
         let fullScreenToggleElement = $('.full-screen-toggle');
