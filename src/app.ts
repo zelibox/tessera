@@ -108,8 +108,12 @@ $(function () {
             }
         });
 
-
         let pauseElement = $('.pause');
+
+        let windowElement:JQuery|any = $(window);
+        windowElement.on('blur', () => {
+            pauseElement.trigger('click');
+        });
         pauseElement.on('click', () => {
             scene.setPause(true);
             $('.cover').show();

@@ -30,6 +30,7 @@ class Scene {
             rain: 'assets/puzzle/magic/rain.png',
             thief: 'assets/puzzle/magic/thief.png',
             gear: 'assets/puzzle/magic/gear.png',
+            weight: 'assets/puzzle/magic/weight.png',
         },
         shadowPuzzle: {
             shadow: 'assets/puzzle/shadow/shadow.png',
@@ -67,8 +68,10 @@ class Scene {
     }
 
     initInteractiveFigure() {
-        let random = (Math.floor(Math.random() * (16 - 1 + 1)) + 1);
-        if (random == 10) {
+        let random = (Math.floor(Math.random() * (17 - 1 + 1)) + 1);
+        if (random == 9) {
+            this.interactiveFigure = new WeightMagicFigure(this);
+        } else if (random == 10) {
             this.interactiveFigure = new GearMagicFigure(this);
         } else if (random == 11) {
             this.interactiveFigure = new ThiefMagicFigure(this);

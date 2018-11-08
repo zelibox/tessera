@@ -27,8 +27,6 @@ class RainItemPuzzle extends SimplePuzzle {
 }
 
 class RainMagicPuzzle extends SimplePuzzle {
-    animationTime = 2000;
-
     getTile(): string {
         return this.getFigure().getScene().assets.magicPuzzle.rain;
     }

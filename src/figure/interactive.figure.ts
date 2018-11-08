@@ -3,7 +3,7 @@ abstract class InteractiveFigure extends Figure {
     private renderStartDate: Date = null;
     protected cell = null;
     protected row = null;
-    private enableMove = true;
+    protected enableMove = true;
 
     constructor(scene: Scene) {
         super(scene);

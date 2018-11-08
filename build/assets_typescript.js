@@ -98,6 +98,10 @@ $(function () {
             }
         });
         let pauseElement = $('.pause');
+        let windowElement = $(window);
+        windowElement.on('blur', () => {
+            pauseElement.trigger('click');
+        });
         pauseElement.on('click', () => {
             scene.setPause(true);
             $('.cover').show();
@@ -173,6 +177,7 @@ class Scene {
                 rain: 'assets/puzzle/magic/rain.png',
                 thief: 'assets/puzzle/magic/thief.png',
                 gear: 'assets/puzzle/magic/gear.png',
+                weight: 'assets/puzzle/magic/weight.png',
             },
             shadowPuzzle: {
                 shadow: 'assets/puzzle/shadow/shadow.png',
@@ -201,8 +206,11 @@ class Scene {
         return assets;
     }
     initInteractiveFigure() {
-        let random = (Math.floor(Math.random() * (16 - 1 + 1)) + 1);
-        if (random == 10) {
+        let random = (Math.floor(Math.random() * (17 - 1 + 1)) + 1);
+        if (random == 9) {
+            this.interactiveFigure = new WeightMagicFigure(this);
+        }
+        else if (random == 10) {
             this.interactiveFigure = new GearMagicFigure(this);
         }
         else if (random == 11) {
@@ -762,6 +770,91 @@ class GearMagicFigure extends InteractiveFigure {
         ];
     }
 }
+class WeightMagicFigure extends InteractiveFigure {
+    constructor(scene) {
+        super(scene);
+        this.insertPuzzles(this.getScene().generatePuzzles(this.getCountPuzzlePlaces(), WeightMagicPuzzle));
+    }
+    rotate(side) {
+    }
+    move(side) {
+        if (!this.enableMove) {
+            return false;
+        }
+        let moveX = this.getCell();
+        let moveY = this.getRow();
+        if (side === 'right') {
+            moveX = this.getCell() + 1;
+        }
+        if (side === 'left') {
+            moveX = this.getCell() - 1;
+        }
+        if (side === 'down') {
+            moveY = this.getRow() + 1;
+        }
+        let x;
+        let y = moveY;
+        let barrierType = null;
+        let barriers = [];
+        for (let row of this.getShape()) {
+            x = moveX;
+            for (let puzzle of row) {
+                if (typeof puzzle !== "number") {
+                    let barrier = this.getScene().getPuzzle(x, y);
+                    if (barrier && barrier.getFigure() !== this) {
+                        barrierType = side;
+                        barriers.push(barrier);
+                    }
+                }
+                x += 1;
+            }
+            y += 1;
+        }
+        if (barrierType) {
+            if (barrierType === 'down') {
+                if (this.getRow() === 1) {
+                    this.scene.disablePoints();
+                    this.scene.getWrapFigure().getPuzzles().forEach(p => p.remove());
+                    this.scene.enablePoints();
+                }
+                else {
+                    this.enableMove = false;
+                    let notWrap = barriers.filter(b => !(b.getFigure() instanceof WrapFigure));
+                    if (notWrap.length) {
+                        notWrap[0].getFigure().impact(this);
+                        return false;
+                    }
+                    else {
+                        let promises = barriers.map(p => {
+                            return p.createAnimation(ScalePuzzleAnimation, { x: 0, y: 0, alpha: 0 });
+                        });
+                        Promise.all(promises).then(() => {
+                            barriers.forEach(p => p.remove());
+                            this.enableMove = true;
+                            this.cell = moveX;
+                            this.row = moveY;
+                            this.updateShape(this.getShape());
+                        });
+                    }
+                    return true;
+                }
+            }
+        }
+        else {
+            this.cell = moveX;
+            this.row = moveY;
+            this.updateShape(this.getShape());
+            return true;
+        }
+    }
+    initShape() {
+        let shape = [[]];
+        for (let i = 0; i < (Math.floor(Math.random() * 3) + 1); i++) {
+            shape[0].push(1);
+        }
+        return shape;
+    }
+}
 // LeftWind -- move all to right
 // RightWind  -- move all to left
 // TopWind -- move all to down
@@ -1228,10 +1321,6 @@ class RainItemPuzzle extends SimplePuzzle {
     }
 }
 class RainMagicPuzzle extends SimplePuzzle {
-    constructor() {
-        super(...arguments);
-        this.animationTime = 2000;
-    }
     getTile() {
         return this.getFigure().getScene().assets.magicPuzzle.rain;
     }
@@ -1253,6 +1342,11 @@ class RainMagicPuzzle extends SimplePuzzle {
 class ThiefMagicPuzzle extends SimplePuzzle {
     getTile() {
         return this.getFigure().getScene().assets.magicPuzzle.thief;
+    }
+}
+class WeightMagicPuzzle extends SimplePuzzle {
+    getTile() {
+        return this.getFigure().getScene().assets.magicPuzzle.weight;
     }
 }
 
